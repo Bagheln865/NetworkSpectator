@@ -13,7 +13,7 @@ import SwiftUI
 internal final class NetworkLogContainer: ObservableObject, Sendable {
     /// Singleton.
     static let shared = NetworkLogContainer()
-
+    
     /// Items on the MainActor to update on UI layer.
     @Published var items: [LogItem] = []
     
@@ -22,7 +22,7 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     
     /// Safeguard againts redudant calls. Avoids multiple calls to start/stop monitoring.
     private var isLoggingEnabled: Bool = false
-
+    
     private init() { }
     
     /// Enables monitoring and logging. 'isLoggingEnabled' flag avoids redudant invocation.
@@ -44,18 +44,19 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
             DebugPrint.log("NETWORK SPECTATOR: Monitoring was inactive.")
             return
         }
+        Task { await LogSessionManager.shared.finalizeSession() }
         URLProtocol.unregisterClass(NetworkURLProtocol.self)
         URLSessionConfiguration.disableNetworkMonitoring()
         stop()
         isLoggingEnabled = false
         DebugPrint.log("NETWORK SPECTATOR: Monitoring stopped.")
     }
-
+    
     /// Starts observing updates from the network log store.
     private func startObservingUpdates() {
         itemUpdateTask = Task { @MainActor [weak self] in
             guard let self else { return }
-
+            
             // Iterate the async stream produced by the LogStore
             for await updatedItems in await NetworkLogStore.shared.itemUpdates() {
                 if Task.isCancelled { break }
@@ -63,6 +64,7 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
                 switch updatedItems {
                 case .append(let item):
                     self.items.append(item)
+                    Task { await LogSessionManager.shared.appendItem(item) }
                 case .update(let item, let index):
                     // Updated LogItem
                     if index < self.items.count, self.items[index].id == item.id {
@@ -71,6 +73,7 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
                         // Recovery - If item not found, treat as new
                         self.items.append(item)
                     }
+                    Task { await LogSessionManager.shared.updateItem(item, at: index) }
                 }
             }
         }
@@ -81,7 +84,7 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
         itemUpdateTask = nil
         items.removeAll()
     }
-
+    
     /// Cancels ongoing observation of network log updates.
     private func stop() {
         reset()
@@ -94,6 +97,7 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     func clear() {
         reset()
         Task {
+            await LogSessionManager.shared.finalizeSession()
             await NetworkLogStore.shared.stop()
             // Start observing after current items are removed completely.
             startObservingUpdates()
@@ -101,7 +105,6 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     }
 }
 
-/// LogStore actor for thread-safe management and streaming of network log items.
 internal actor NetworkLogStore {
     
     enum ItemStream {

@@ -16,6 +16,7 @@ struct SettingsView: View {
     var body: some View {
         List {
             insightSection
+            historySection
             mockManagementSection
             skipLoggingManagementSection
         }
@@ -54,6 +55,35 @@ struct SettingsView: View {
            
         } footer: {
             Text("View analytics and insights for network requests")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+    
+    // MARK: - Insights Section
+
+    private var historySection: some View {
+        Section {
+            NavigationLink {
+                LogHistoryView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.brown)
+                        .frame(width: 28)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("History")
+                            .font(.body)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        } header: {
+           
+        } footer: {
+            Text("View history of logged network requests")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

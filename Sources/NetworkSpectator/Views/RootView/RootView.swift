@@ -19,9 +19,22 @@ struct RootView: View {
     @State private var selectedStatusCategories: Set<String> = []
     @State private var selectedStatusCodes: Set<String> = []
     @State private var showFilterSheet = false
+    
+    let isLoggingLive: Bool
+    let logsHistory: [LogItem]
+    
+    init(isLoggingLive: Bool = true, logsHistory: [LogItem] = []) {
+        self.isLoggingLive = isLoggingLive
+        self.logsHistory = logsHistory
+    }
 
     var items: [LogItem] {
-        var filtered = store.items
+        var filtered: [LogItem] = store.items
+        if isLoggingLive {
+            filtered = store.items
+        } else {
+            filtered = logsHistory
+        }
 
         // Apply search filter
         if !searchText.isEmpty {
@@ -173,7 +186,7 @@ struct RootView: View {
                         Image(systemName: "trash")
                     }
                     .accessibilityLabel("Clear all requests")
-                    .disabled(store.items.isEmpty)
+                    .disabled(!isLoggingLive || store.items.isEmpty)
 
                     // Settings button
                     Button {
@@ -182,6 +195,7 @@ struct RootView: View {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Settings")
+                    .disabled(!isLoggingLive)
                 }
             }
             .alert("Export failed", isPresented: $showAlert, actions: {
