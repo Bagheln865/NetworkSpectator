@@ -19,7 +19,7 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            if store.onDemandMonitoring {
+            if !store.initializedProgrammatically || store.onDemandMonitoring {
                 monitoringManagementSection
             }
             insightSection
@@ -65,19 +65,24 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         } footer: {
             if toggleMonitoring {
-                Toggle(isOn: $togglePersistence) {
-                    HStack {
-                        Text("Remember this setting between app launches")
-                            .font(.callout)
-                            .foregroundStyle(.primary)
-                        Spacer()
+                VStack {
+                    Toggle(isOn: $togglePersistence) {
+                        HStack {
+                            Text("Remember this setting between app launches")
+                                .font(.callout)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                        }
+                        Divider()
                     }
-                    Divider()
+                    #if os(macOS)
+                    .toggleStyle(CheckboxToggleStyle())
+                    #endif
+                    .disabled(!toggleMonitoring || !store.initializedProgrammatically)
+                    
+                    Text("Use NetworkSpectator.start(onDemand:) early in your app's lifecycle to enable on-demand monitoring. When remembered, this setting persists across launches and monitoring begins automatically on next app start.")
                 }
-                #if os(macOS)
-                .toggleStyle(CheckboxToggleStyle())
-                #endif
-                .disabled(!toggleMonitoring)
+                    
             }
         }
         .toggleStyle(SwitchToggleStyle())

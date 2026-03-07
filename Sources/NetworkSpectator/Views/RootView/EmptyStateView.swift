@@ -79,6 +79,15 @@ struct EmptyStateView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.opacity(viewState == .disabledLogging ? 0.15 : 0.3))
+        .overlay(alignment: .bottom) {
+            if !monitor.isLoggingEnabled && !monitor.initializedProgrammatically {
+                Text("Add NetworkSpectator.start(onDemand:) early in your app's lifecycle to capture HTTP traffic. In on-demand mode, you can toggle monitoring at any time and optionally persist the preference across launches.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+        }
     }
     
     @ViewBuilder
@@ -169,7 +178,7 @@ extension EmptyStateView {
             case .search:
                 return "No requests matched. Try adjusting your search or filters."
             case .disabledLogging:
-                return "Tap below to start capturing network activity for this session. For persistent monitoring across launches, enable it via Tools > Network Monitor."
+                return "Tap below to start capturing network activity for this session. Monitoring preferences can be accessed via Tools > Network Monitor."
             }
         }
     }

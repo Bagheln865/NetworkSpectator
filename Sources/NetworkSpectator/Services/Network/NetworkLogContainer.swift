@@ -28,10 +28,13 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     
     /// When monitoring needs to be enabled on demand through UI.
     private(set) var onDemandMonitoring: Bool = false
+    
+    /// Helps undertand the setup mode.
+    private(set) var initializedProgrammatically: Bool = false
 
     private init() { }
     
-    /// onDemand: When true, Monitoring state to be handled by UI, else enables immediately.
+    /// When Monitoring state to be handled by UI on demand.
     func enableOnDemand() {
         self.onDemandMonitoring = true
         // if preference was stored.
@@ -64,6 +67,10 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
         stop()
         isLoggingEnabled = false
         DebugPrint.log("NETWORK SPECTATOR: Monitoring stopped.")
+    }
+    
+    func initialize() {
+        initializedProgrammatically = true
     }
 
     /// Starts observing updates from the network log store.
