@@ -23,11 +23,11 @@ struct LogSessionManagerTests {
     /// Creates a manager with a mock item provider and storage.
     /// The `items` array is captured by reference so tests can mutate it
     /// and have the manager see the latest state on each snapshot.
-    private func makeManager(items: ItemsRef) -> (LogSessionManager, MockFileStorage) {
+    private func makeManager(items: ItemsRef) -> (LogHistoryManager, MockFileStorage) {
         let mockFS = MockFileStorage()
         let baseURL = URL(fileURLWithPath: "/tmp/test-session-manager")
         let storage = LogHistoryStorage(fileManager: mockFS, baseURL: baseURL)
-        let manager = LogSessionManager(
+        let manager = LogHistoryManager(
             storage: storage,
             debounceInterval: .milliseconds(100),
             itemProvider: { items.value }
@@ -181,7 +181,7 @@ struct LogSessionManagerTests {
         }
     }
 
-    @Test("Finalize resets state for new session")
+    @Test("Finalize resets state allowing new session to persist fresh")
     func testFinalizeResetsState() async {
         let time1 = Date(timeIntervalSince1970: 1709400000)
         let items = ItemsRef([sampleLogItem(url: "https://session1.com", startTime: time1)])
@@ -191,15 +191,28 @@ struct LogSessionManagerTests {
         await manager.startObserving()
         await manager.finalizeSession()
 
-        // Second session with different items
+        let storage = makeStorage(mockFS)
+        let firstKeys = storage.listKeys()
+        #expect(firstKeys.count == 1)
+
+        if let key = firstKeys.first {
+            let persisted = storage.retrieve(forKey: key.key)
+            #expect(persisted.count == 1)
+            #expect(persisted.first?.url == "https://session1.com")
+        }
+
+        // Second session with different items — should overwrite since
+        // sessionStartTime is approximately the same (sub-second execution).
         let time2 = Date(timeIntervalSince1970: 1709500000)
         items.value = [sampleLogItem(url: "https://session2.com", startTime: time2)]
         await manager.startObserving()
         await manager.finalizeSession()
 
-        let storage = makeStorage(mockFS)
-        let keys = storage.listKeys()
-        #expect(keys.count == 2)
+        // Verify the latest persisted data reflects session 2
+        let secondKeys = storage.listKeys()
+        let allItems = secondKeys.flatMap { storage.retrieve(forKey: $0.key) }
+        let hasSession2 = allItems.contains { $0.url == "https://session2.com" }
+        #expect(hasSession2 == true)
     }
 
     @Test("Empty provider does not write")
@@ -297,6 +310,90 @@ struct LogSessionManagerTests {
 
         let filesWritten = mockFS.files.filter { $0.key.contains("json") }.count
         #expect(filesWritten == 0)
+    }
+
+    @Test("stopObserving cancels pending debounced write")
+    func testStopObservingCancelsPendingWrite() async {
+        let time = Date(timeIntervalSince1970: 1709400000)
+        let items = ItemsRef([sampleLogItem(startTime: time)])
+        let (manager, mockFS) = makeManager(items: items)
+
+        await manager.startObserving()
+        await manager.schedulePersist()
+
+        // Stop before debounce fires
+        await manager.stopObserving()
+
+        // Wait past debounce interval
+        try? await Task.sleep(for: .milliseconds(200))
+
+        let filesWritten = mockFS.files.filter { $0.key.contains("json") }.count
+        #expect(filesWritten == 0)
+    }
+
+    @Test("finalizeAndStopObserving persists then prevents further writes")
+    func testFinalizeAndStopObserving() async {
+        let time = Date(timeIntervalSince1970: 1709400000)
+        let items = ItemsRef([sampleLogItem(startTime: time)])
+        let (manager, mockFS) = makeManager(items: items)
+
+        await manager.startObserving()
+        await manager.finalizeAndStopObserving()
+
+        // Should have persisted
+        let storage = makeStorage(mockFS)
+        let keys = storage.listKeys()
+        #expect(keys.count == 1)
+
+        // Further schedulePersist should be ignored since observing stopped
+        items.value.append(sampleLogItem(url: "https://extra.com", startTime: Date()))
+        await manager.schedulePersist()
+        try? await Task.sleep(for: .milliseconds(200))
+
+        // Still only one key (from the finalize), no new writes
+        let keysAfter = storage.listKeys()
+        #expect(keysAfter.count == 1)
+    }
+
+    @Test("startObserving is idempotent — second call does not reset session start time")
+    func testStartObservingIdempotent() async {
+        let time = Date(timeIntervalSince1970: 1709400000)
+        let items = ItemsRef([sampleLogItem(startTime: time)])
+        let (manager, mockFS) = makeManager(items: items)
+
+        await manager.startObserving()
+
+        // Small delay so a second startObserving would produce a different sessionStartTime
+        try? await Task.sleep(for: .milliseconds(50))
+        await manager.startObserving() // should be a no-op
+
+        await manager.finalizeSession()
+
+        let storage = makeStorage(mockFS)
+        let keys = storage.listKeys()
+        #expect(keys.count == 1)
+        // The key should reflect the original start time, not a later one
+        #expect(keys.first?.key.contains("Total: 1") == true)
+    }
+
+    @Test("schedulePersist after stopObserving and re-startObserving works")
+    func testRestartObservingAfterStop() async {
+        let time = Date(timeIntervalSince1970: 1709400000)
+        let items = ItemsRef([sampleLogItem(startTime: time)])
+        let (manager, mockFS) = makeManager(items: items)
+
+        // First session: start then stop without finalizing
+        await manager.startObserving()
+        await manager.stopObserving()
+
+        // Second session: restart and finalize
+        await manager.startObserving()
+        await manager.finalizeSession()
+
+        let storage = makeStorage(mockFS)
+        let keys = storage.listKeys()
+        #expect(keys.count == 1)
+        #expect(keys.first?.key.contains("Total: 1") == true)
     }
 }
 

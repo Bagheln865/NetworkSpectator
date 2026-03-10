@@ -121,8 +121,9 @@ struct LogHistoryStorageTests {
 
         let keys = storage.listKeys()
         #expect(keys.count == 2)
-        #expect(keys.contains(key1))
-        #expect(keys.contains(key2))
+        let keyStrings = keys.map(\.key)
+        #expect(keyStrings.contains(key1))
+        #expect(keyStrings.contains(key2))
     }
 
     @Test("Clear all removes all entries")
@@ -161,7 +162,7 @@ struct LogHistoryStorageTests {
         #expect(retrieved.count == 1)
 
         let keys = storage.listKeys()
-        #expect(keys.contains(key))
+        #expect(keys.map(\.key).contains(key))
     }
 
     @Test("Preserves LogItem properties through save/retrieve cycle")
