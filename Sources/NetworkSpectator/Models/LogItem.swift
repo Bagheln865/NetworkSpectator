@@ -22,7 +22,6 @@ struct LogItem: Identifiable, Codable, Equatable, Sendable, Hashable {
 
     // Response
     let statusCode: Int
-    let responseBody: String
     let responseHeaders: [String: String]
     let mimetype: String?
     let textEncodingName: String?
@@ -59,6 +58,10 @@ struct LogItem: Identifiable, Codable, Equatable, Sendable, Hashable {
     
     var responseHeadersPrettyPrinted: String {
         Self.prettyPrintedHeaders(responseHeaders)
+    }
+    
+     var responseBody: String {
+        Self.prettyPrintedBody(responseRaw)
     }
     
     var isMocked: Bool { mockId != nil }
@@ -115,7 +118,6 @@ struct LogItem: Identifiable, Codable, Equatable, Sendable, Hashable {
         self.headers = headers
         self.requestBody = requestBody
         self.statusCode = statusCode
-        self.responseBody = responseBody
         self.responseHeaders = responseHeaders
         self.mimetype = mimetype
         self.textEncodingName = textEncodingName
@@ -211,7 +213,7 @@ private extension LogItem {
         guard let data = data, !data.isEmpty else { return "" }
         // Try JSON first
         if let json = try? JSONSerialization.jsonObject(with: data, options: []),
-           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted]),
+           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .withoutEscapingSlashes]),
            let pretty = String(data: jsonData, encoding: .utf8) {
             return pretty
         }

@@ -11,10 +11,17 @@ struct SettingsView: View {
 
     @State private var mockCount: Int = 0
     @State private var skipLoggingCount: Int = 0
+    @State private var toggleMonitoring: Bool = false
+    @State private var togglePersistence: Bool = false
     @ObservedObject private var store = NetworkLogContainer.shared
+    
+    let preferenceStorage = MonitorPreferenceStorage()
 
     var body: some View {
         List {
+            if store.setupMode != .started {
+                monitoringManagementSection
+            }
             insightSection
             historySection
             mockManagementSection
@@ -28,9 +35,77 @@ struct SettingsView: View {
         .navigationTitle("Tools")
         .onAppear {
             loadCounts()
+            loadMonitoringState()
         }
     }
 
+    // MARK: - Monitoring Management Section
+    
+    private var monitoringManagementSection: some View {
+        Section {
+            Toggle(isOn: $toggleMonitoring) {
+                VStack {
+                    HStack(spacing: 12) {
+                        Image(systemName: store.isLoggingEnabled ? "network" : "network.slash")
+                            .font(.title3)
+                            .foregroundStyle(store.isLoggingEnabled ? .blue : .secondary)
+                            .frame(width: 28)
+                        
+                        Text("Network Monitoring")
+                            .font(.body)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            
+        } header: {
+            Text("Monitoring is \(store.isLoggingEnabled ? "enabled" : "disabled")")
+                .font(.subheadline)
+                .monospaced(true)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+        } footer: {
+            if toggleMonitoring {
+                VStack {
+                    Toggle(isOn: $togglePersistence) {
+                        HStack {
+                            Text("Remember this setting between app launches")
+                                .font(.callout)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                        }
+                        Divider()
+                    }
+                    #if os(macOS)
+                    .toggleStyle(CheckboxToggleStyle())
+                    #endif
+                    .disabled(!toggleMonitoring || store.setupMode == .none || store.setupMode == .uiInitiated)
+                    if store.setupMode == .none || store.setupMode == .uiInitiated {
+                        Text("Use NetworkSpectator.start(onDemand:) early in your app's lifecycle to enable on-demand monitoring. When remembered, this setting persists across launches and monitoring begins automatically on next app start.")
+                    }
+                }
+                    
+            }
+        }
+        .toggleStyle(SwitchToggleStyle())
+        .onChange(of: toggleMonitoring) { value in
+            if value {
+                store.enableInternally()
+            } else {
+                store.disable()
+                preferenceStorage.clear()
+                togglePersistence = false
+            }
+        }
+        .onChange(of: togglePersistence) { value in
+            if value {
+                preferenceStorage.save(true)
+            } else {
+                preferenceStorage.clear()
+            }
+        }
+    }
+    
     // MARK: - Insights Section
 
     private var insightSection: some View {
@@ -41,7 +116,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "chart.bar.xaxis.ascending")
                         .font(.title3)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.brown)
                         .frame(width: 28)
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -198,5 +273,10 @@ struct SettingsView: View {
     private func loadCounts() {
         mockCount = MockServer.shared.mocks.count
         skipLoggingCount = SkipRequestForLoggingHandler.shared.skipRequests.count
+    }
+
+    private func loadMonitoringState() {
+        toggleMonitoring = store.isLoggingEnabled
+        togglePersistence = preferenceStorage.retrieve()
     }
 }

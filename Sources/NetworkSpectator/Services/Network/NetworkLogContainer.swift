@@ -17,22 +17,45 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     /// Items on the MainActor to update on UI layer.
     @Published private(set) var items: [LogItem] = []
     
-    /// Lookup from LogItem.id to index in `items` for O(1) updates.
-    private var indexByID: [UUID: Int] = [:]
+    /// Index cache for faster lookup from LogItem.id to index.
+    private(set) var indexByID: [UUID: Int] = [:]
     
     /// Task to observe item updates from the store actor.
     private var itemUpdateTask: Task<Void, Never>?
     
-    /// Safeguard against redundant calls. Avoids multiple calls to start/stop monitoring.
-    private var isLoggingEnabled: Bool = false
+    /// Safeguard againts redudant calls. Avoids multiple calls to start/stop monitoring.
+    @Published private(set) var isLoggingEnabled: Bool = false
     
+    /// Tracks how monitoring was initialized.
+    private(set) var setupMode: SetupMode = .none
+
     private init() { }
     
-    /// Enables monitoring and logging. 'isLoggingEnabled' flag avoids redundant invocation.
+    /// When Monitoring state to be handled by UI on demand.
+    func enableOnDemand() {
+        setupMode = .onDemand
+        // if preference was stored.
+        if MonitorPreferenceStorage().retrieve() {
+            enable()
+        }
+    }
+    
+    /// When enabled only with UI.
+    func enableInternally() {
+        if setupMode == .none {
+            setupMode = .uiInitiated
+        }
+        enable()
+    }
+    
+    /// Enables monitoring and logging. 'isLoggingEnabled' flag avoids redudant invocation.
     func enable() {
         guard !isLoggingEnabled else {
             DebugPrint.log("NETWORK SPECTATOR: Monitoring was already active.")
             return
+        }
+        if setupMode == .none {
+            setupMode = .started
         }
         URLProtocol.registerClass(NetworkURLProtocol.self)
         URLSessionConfiguration.enableNetworkMonitoring()
@@ -109,8 +132,8 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     private func reset() {
         itemUpdateTask?.cancel()
         itemUpdateTask = nil
-        items.removeAll()
-        indexByID.removeAll()
+        items = []
+        indexByID = [:]
     }
     
     /// Cancels ongoing observation of network log updates.
@@ -136,6 +159,21 @@ internal final class NetworkLogContainer: ObservableObject, Sendable {
     }
 }
 
+extension NetworkLogContainer {
+    /// How the monitoring was initialized.
+    enum SetupMode {
+        /// Not yet initialized — user opened the UI without calling start().
+        case none
+        /// NetworkSpectator.start() was called (always-on monitoring).
+        case started
+        /// NetworkSpectator.start(onDemand: true) was called.
+        case onDemand
+        /// Started through UI.
+        case uiInitiated
+    }
+}
+
+/// LogStore actor for thread-safe management and streaming of network log items.
 internal actor NetworkLogStore {
     
     /// Represents an individual update to a log item.
@@ -277,10 +315,10 @@ internal actor NetworkLogStore {
     }
     
     fileprivate func clear() {
-        items.removeAll()
-        indexByID.removeAll()
-        buffer.removeAll()
-        pending.removeAll()
+        items = []
+        indexByID = [:]
+        buffer = []
+        pending = []
         flushTask?.cancel()
         flushTask = nil
     }
