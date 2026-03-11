@@ -116,7 +116,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "chart.bar.xaxis.ascending")
                         .font(.title3)
-                        .foregroundStyle(.brown)
+                        .foregroundStyle(.purple)
                         .frame(width: 28)
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -144,8 +144,8 @@ struct SettingsView: View {
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "arrow.clockwise.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.brown)
+                        .font(.title2)
+                        .foregroundStyle(.mint)
                         .frame(width: 28)
 
                     VStack(alignment: .leading, spacing: 2) {

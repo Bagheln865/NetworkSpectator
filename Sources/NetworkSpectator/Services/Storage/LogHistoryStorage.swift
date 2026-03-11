@@ -30,6 +30,9 @@ extension FileManager: FileStoreable {
 struct HistoryItem: Codable, Identifiable {
     let key: String
     let url: URL
+    let timestamp: String
+    let count: String
+    let size: Int
     
     var id: String {
         key
@@ -107,12 +110,24 @@ struct LogHistoryStorage {
     /// Returns all stored keys (timestamp range strings).
     func listKeys() -> [HistoryItem] {
         do {
-            let contents = try fileManager.contentsOfDirectory(at: baseURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let contents = try fileManager.contentsOfDirectory(at: baseURL, includingPropertiesForKeys: [.fileSizeKey], options: .skipsHiddenFiles)
             return contents
                 .filter { $0.pathExtension == "json" }
                 .compactMap { url in
                     if let key = decodedKey(from: url.deletingPathExtension().lastPathComponent) {
-                        return HistoryItem(key: key, url: url)
+                        let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+                        let params = key.split(separator: "|").map { String($0) }
+                        var timestamp = key
+                        var count = "Count: Unknown"
+                        if params.count >= 2 {
+                            timestamp = params[0]
+                            count = params[1]
+                        }
+                        return HistoryItem(key: key,
+                                           url: url,
+                                           timestamp: timestamp,
+                                           count: count,
+                                           size: size ?? 0)
                     }
                     return nil
                 }

@@ -144,7 +144,7 @@ actor LogHistoryManager {
         let end = items.last?.finishTime ?? items.last?.startTime ?? start
         let size = ByteCountFormatter.string(fromByteCount: Int64(data.count), countStyle: .binary)
 
-        let newKey = "\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end)) | Total: \(items.count) | Size: \(size)"
+        let newKey = "\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))|Count: \(items.count)"
 
         // If key changed, remove the old file
         if let oldKey = sessionKey, oldKey != newKey {

@@ -147,6 +147,29 @@ struct RootContentView: View {
                     }
                 }
                 .accessibilityLabel("Filter requests")
+                .disabled(logItems.isEmpty)
+                
+                if isHistoricLogs {
+                    // Insights button
+                    NavigationLink {
+                        AnalyticsDashboardView(data: logItems)
+                    } label: {
+                        Image(systemName: "chart.bar.xaxis.ascending")
+                    }
+                    .accessibilityLabel("Insights")
+                    .disabled(logItems.isEmpty)
+                }
+                
+                // Clear button (live logs only)
+                if !isHistoricLogs {
+                    Button {
+                        showClearAlert = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .accessibilityLabel("Clear all requests")
+                    .disabled(logItems.isEmpty)
+                }
                 
                 // Export button
                 Button {
@@ -171,27 +194,7 @@ struct RootContentView: View {
                 .accessibilityLabel("Export requests")
                 .disabled(isExporting || logItems.isEmpty)
                 
-                // Clear button (live logs only)
                 if !isHistoricLogs {
-                    Button {
-                        showClearAlert = true
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .accessibilityLabel("Clear all requests")
-                    .disabled(logItems.isEmpty)
-                }
-                
-                if isHistoricLogs {
-                    // Insights button
-                    NavigationLink {
-                        AnalyticsDashboardView(data: logItems)
-                    } label: {
-                        Image(systemName: "chart.bar.xaxis.ascending")
-                    }
-                    .accessibilityLabel("Insights")
-                    .disabled(logItems.isEmpty)
-                } else {
                     // Settings button
                     NavigationLink {
                         SettingsView()
