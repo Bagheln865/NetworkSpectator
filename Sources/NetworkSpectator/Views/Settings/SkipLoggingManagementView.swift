@@ -13,6 +13,8 @@ struct SkipLoggingManagementView: View {
     @State private var showAddSkipSheet = false
     @State private var editingSkipItem: AddRuleItem?
 
+    var onDataChanged: (() -> Void)?
+
     var body: some View {
         List {
             if skipLogging.isEmpty {
@@ -44,15 +46,6 @@ struct SkipLoggingManagementView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Skip Rule")
-            }
-
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    loadData()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-                .accessibilityLabel("Refresh")
             }
         }
         .onAppear {
@@ -116,6 +109,7 @@ struct SkipLoggingManagementView: View {
         withAnimation {
             skipLogging = SkipRequestForLoggingHandler.shared.skipRequests.map { $0 }
         }
+        onDataChanged?()
     }
 
     private func deleteSkipLogging(at indexSet: IndexSet) {
@@ -125,5 +119,6 @@ struct SkipLoggingManagementView: View {
             skipLogging.remove(atOffsets: indexSet)
         }
         SkipRequestForLoggingHandler.shared.remove(id: id)
+        onDataChanged?()
     }
 }

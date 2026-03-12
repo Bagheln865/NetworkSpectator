@@ -13,6 +13,8 @@ struct MockManagementView: View {
     @State private var showAddMockSheet = false
     @State private var editingMockItem: AddRuleItem?
 
+    var onDataChanged: (() -> Void)?
+
     var body: some View {
         List {
             if mocks.isEmpty {
@@ -44,15 +46,6 @@ struct MockManagementView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel("Add Mock")
-            }
-
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    loadData()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-                .accessibilityLabel("Refresh")
             }
         }
         .onAppear {
@@ -116,6 +109,7 @@ struct MockManagementView: View {
         withAnimation {
             mocks = MockServer.shared.mocks.map { $0 }
         }
+        onDataChanged?()
     }
 
     private func deleteMock(at indexSet: IndexSet) {
@@ -125,5 +119,6 @@ struct MockManagementView: View {
             mocks.remove(atOffsets: indexSet)
         }
         MockServer.shared.remove(id: id)
+        onDataChanged?()
     }
 }

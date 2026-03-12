@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var skipLoggingCount: Int = 0
     @State private var toggleMonitoring: Bool = false
     @State private var togglePersistence: Bool = false
+    @State private var refreshID = UUID()
     @ObservedObject private var store = NetworkLogContainer.shared
     
     let preferenceStorage = PreferenceStorage(preference: .monitoring)
@@ -39,15 +40,18 @@ struct SettingsView: View {
             case .history:
                 LogHistoryView()
             case .mockManagement:
-                MockManagementView()
+                MockManagementView(onDataChanged: { refreshID = UUID() })
             case .skipLogging:
-                SkipLoggingManagementView()
+                SkipLoggingManagementView(onDataChanged: { refreshID = UUID() })
             }
         }
         .navigationTitle("Tools")
         .onAppear {
             loadCounts()
             loadMonitoringState()
+        }
+        .onChange(of: refreshID) { _ in
+            loadCounts()
         }
     }
 
