@@ -13,7 +13,6 @@ struct RootContentView: View {
     @State private var searchText = ""
     @State private var isExporting = false
     @State private var selectedMethods: Set<String> = []
-    @State private var selectedStatusCategories: Set<String> = []
     @State private var selectedStatusCodes: Set<String> = []
     @State private var showFilterSheet = false
     @State private var showClearAlert = false
@@ -49,10 +48,10 @@ struct RootContentView: View {
             }
         }
 
-        // Apply status category filter
-        if !selectedStatusCategories.isEmpty {
+        // Apply status code range filter
+        if !selectedStatusCodes.isEmpty {
             filtered = filtered.filter { item in
-                selectedStatusCategories.contains(item.statusCategory)
+                selectedStatusCodes.contains(item.statusCodeRange)
             }
         }
 
@@ -64,7 +63,7 @@ struct RootContentView: View {
     }
 
     var hasActiveFilters: Bool {
-        !selectedMethods.isEmpty || !selectedStatusCategories.isEmpty
+        !selectedMethods.isEmpty || !selectedStatusCodes.isEmpty
     }
     
     var body: some View {
@@ -81,7 +80,7 @@ struct RootContentView: View {
                         Section {
                             FilterChipsView(
                                 selectedMethods: $selectedMethods,
-                                selectedStatusCategories: $selectedStatusCategories
+                                selectedStatusCategories: $selectedStatusCodes
                             )
                         }
                         .listRowBackground(Color.clear)

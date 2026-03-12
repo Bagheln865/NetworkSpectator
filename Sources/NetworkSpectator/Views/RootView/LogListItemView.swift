@@ -196,8 +196,8 @@ struct StatusCodeBadge: View {
         switch statusCode {
         case 200..<300: return .green
         case 300..<400: return .yellow.opacity(0.3)
-        case 400..<500: return .orange
-        case 500..<600: return .red
+        case 400..<500: return .red
+        case 500..<600: return .orange
         default: return .gray.opacity(0.2)
         }
     }
