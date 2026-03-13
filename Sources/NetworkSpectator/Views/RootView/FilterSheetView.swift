@@ -121,11 +121,11 @@ struct FilterSheetView: View {
     
     private func statusCodeCategoryColor(_ range: String) -> Color {
         switch range {
-        case "100..<200": return .green
-        case "200..<300": return .yellow
-        case "300..<400": return .orange
+        case "100..<200": return .gray
+        case "200..<300": return .green
+        case "300..<400": return .yellow
         case "400..<500": return .red
-        case "500..<600": return .blue
+        case "500..<600": return .orange
         default: return .gray
         }
     }

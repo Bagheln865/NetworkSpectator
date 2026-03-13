@@ -18,7 +18,7 @@ struct EmptyStateView: View {
     @State private var isTapped: Bool = false
 
     private var viewState: ViewState {
-        if !monitor.isLoggingEnabled {
+        if !monitor.isLoggingEnabled, monitor.items.isEmpty {
             return .disabledLogging
         }
         if isSearchActive {

@@ -9,9 +9,6 @@ import SwiftUI
 
 struct LogHistoryView: View {
     
-    
-
-    
     let storage: LogHistoryStorage
     let preference: PreferenceStorage
     @State var logs: [HistoryItem] = []
@@ -95,7 +92,7 @@ struct LogHistoryView: View {
                 }
             }
         }
-        .navigationTitle(Text("Log History"))
+        .navigationTitle("Log History")
         .navigationDestination(for: LogHistoryRoute.self) { route in
             RootContentView(
                 logItems: storage.retrieve(forKey: route.key),
@@ -135,7 +132,7 @@ struct LogHistoryView: View {
         let totalSizeFormatted = formatBytes(totalSize)
         let runningKey = await LogHistoryManager.shared.currentSessionKey()
         let timestamp = (runningKey ?? "").split(separator: " - ").first ?? "-"
-        let firstTimestamp = (logs.first?.timestamp ?? "").split(separator: " - ").first ?? "+"
+        let firstTimestamp = logs.first?.startTimestamp ?? ""
         if !logs.isEmpty, timestamp == firstTimestamp {
             logs[0].isCurrentSession = true
         }
@@ -150,7 +147,7 @@ struct LogHistoryView: View {
     @ViewBuilder
     var listView: some View {
         ForEach(logs, id: \.key) { log in
-            NavigationLink(value: LogHistoryRoute(key: log.key, title: log.key)) {
+            NavigationLink(value: LogHistoryRoute(key: log.key, title: log.shortTitle)) {
                 VStack(alignment: .leading, spacing: 5) {
                     
                     if log.isCurrentSession {
@@ -162,7 +159,7 @@ struct LogHistoryView: View {
                                 .foregroundStyle(.secondary)
                         }
                     } else {
-                        Label(log.timestamp, systemImage: "clock")
+                        Label(log.formattedTitle, systemImage: "clock")
                             .font(.callout)
                             .fontWeight(.semibold)
                             .foregroundStyle(.primary)

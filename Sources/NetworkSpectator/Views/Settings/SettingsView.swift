@@ -151,10 +151,9 @@ struct SettingsView: View {
         Section {
             NavigationLink(value: SettingsRoute.history) {
                 HStack(spacing: 12) {
-                    Image(systemName: "arrow.clockwise.circle.fill")
+                    Image(systemName: "arrow.counterclockwise.square.fill")
                         .font(.title2)
                         .foregroundStyle(.mint)
-                        .frame(width: 28)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("History")

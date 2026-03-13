@@ -58,11 +58,13 @@ struct FilterChipsView: View {
     private func methodColor(_ method: String) -> Color {
         switch method.uppercased() {
         case "GET": return .blue
-        case "POST": return .green
+        case "POST": return .indigo
         case "PUT": return .orange
         case "PATCH": return .purple
         case "DELETE": return .red
-        default: return .gray
+        case "HEAD": return .gray
+        case "OPTIONS": return .brown
+        default: return .secondary
         }
     }
 

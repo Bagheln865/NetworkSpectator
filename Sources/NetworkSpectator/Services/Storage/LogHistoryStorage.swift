@@ -30,10 +30,32 @@ extension FileManager: FileStoreable {
 struct HistoryItem: Codable, Identifiable {
     let key: String
     let url: URL
-    let timestamp: String
+    let startTimestamp: String
+    let endTimestamp: String
     let count: String
     let size: Int
     var isCurrentSession: Bool = false
+    
+    enum CodingKeys: String, CodingKey {
+        case key, url, startTimestamp, endTimestamp, count, size
+    }
+    
+    let formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+    
+    var formattedTitle: String {
+        let startTime = formatter.date(from: startTimestamp)?.formatted(date: .abbreviated, time: .shortened) ?? ""
+        let endTime = formatter.date(from: endTimestamp)?.formatted(date: .omitted, time: .shortened) ?? ""
+        return "\(startTime) - \(endTime)"
+    }
+    
+    var shortTitle: String {
+        formatter.date(from: startTimestamp)?.formatted(date: .abbreviated, time: .shortened) ?? startTimestamp
+    }
     
     var id: String {
         key
@@ -118,15 +140,18 @@ struct LogHistoryStorage {
                     if let key = decodedKey(from: url.deletingPathExtension().lastPathComponent) {
                         let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
                         let params = key.split(separator: "|").map { String($0) }
-                        var timestamp = key
-                        var count = "Count: Unknown"
-                        if params.count >= 2 {
-                            timestamp = params[0]
-                            count = params[1]
+                        var startTimestamp = key
+                        var endTimestamp = ""
+                        var count = ""
+                        if params.count >= 3 {
+                            startTimestamp = params[0]
+                            endTimestamp = params[1]
+                            count = params[2]
                         }
                         return HistoryItem(key: key,
                                            url: url,
-                                           timestamp: timestamp,
+                                           startTimestamp: startTimestamp,
+                                           endTimestamp: endTimestamp,
                                            count: count,
                                            size: size ?? 0)
                     }
