@@ -19,6 +19,7 @@ struct LogHistoryView: View {
     @State var historyToggle: Bool
     @State var loading: Bool = true
     @State var totalSize: String = ""
+    @State var showDeleteAllAlert = false
     
     init() {
         storage = LogHistoryStorage()
@@ -31,19 +32,24 @@ struct LogHistoryView: View {
             Section {
                 Toggle(isOn: $historyToggle) {
                     HStack {
-                        Text("History is \(historyToggle ? "enabled" : "disabled")")
+                        Text(historyToggle ? "History is enabled" : "Enable history")
                             .font(.body)
                             .fontWeight(.bold)
-                            .foregroundStyle(historyToggle ? .green : .red)
+                            .foregroundStyle(historyToggle ? .green : .primary)
                         Spacer()
                     }
                 }
                 #if os(macOS)
                 .toggleStyle(SwitchToggleStyle())
                 #endif
-                if !totalSize.isEmpty {
+                if !logs.isEmpty {
                     HStack {
-                        Text("Total size: \(totalSize)")
+                        Text("Items: \(logs.count)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .monospaced(true)
+                        
+                        Text("Size: \(totalSize)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .monospaced(true)
@@ -58,8 +64,21 @@ struct LogHistoryView: View {
                         ProgressView("Loading...")
                         Spacer()
                     }
+                } else if logs.isEmpty {
+                    emptyState(icon: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90",
+                               title: "No history",
+                               message: "Historical logs will be stored when History is enabled. You can view stored logs here.")
                 } else {
                     listView
+                }
+            } header: {
+                if !logs.isEmpty {
+                    HStack {
+                        Spacer()
+                        Text("Swipe right to left to delete")
+                            .font(.footnote)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
             }
         }
@@ -67,8 +86,7 @@ struct LogHistoryView: View {
             if !logs.isEmpty {
                 ToolbarItem {
                     Button("Delete all") {
-                        storage.clearAll()
-                        logs = storage.listKeys()
+                        showDeleteAllAlert.toggle()
                     }
                     .tint(.red)
                     .foregroundStyle(.red)
@@ -84,6 +102,15 @@ struct LogHistoryView: View {
                 isHistoricLogs: true,
                 title: route.title
             )
+        }
+        .alert("Delete all", isPresented: $showDeleteAllAlert) {
+            Button("Delete", role: .destructive) {
+                storage.clearAll()
+                logs = storage.listKeys()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete all historical logs?\nThis action cannot be undone.")
         }
         .onChange(of: historyToggle) { toggle in
             // Change history logging preference.
@@ -153,6 +180,17 @@ struct LogHistoryView: View {
                 }
                 .padding(.vertical, 5)
                 .contentShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if !log.isCurrentSession {
+                    Button(role: .destructive) {
+                        storage.delete(forKey: log.key)
+                        logs.removeAll { $0.key == log.key }
+                        totalSize = formatBytes(logs.reduce(0) { $0 + $1.size })
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         }
         #if os(iOS)

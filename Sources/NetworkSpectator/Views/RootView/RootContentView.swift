@@ -220,7 +220,7 @@ struct RootContentView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Are you sure you want to clear all logged requests? This action cannot be undone.")
+            Text("Are you sure you want to clear all logged requests?\nLogs are stored when history is enabled and can be viewed later.")
         }
         #if canImport(UIKit)
         .popover(item: $exportItem) { item in
