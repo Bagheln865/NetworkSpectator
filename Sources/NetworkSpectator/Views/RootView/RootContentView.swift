@@ -17,19 +17,15 @@ struct RootContentView: View {
     @State private var showFilterSheet = false
     @State private var showClearAlert = false
 
-    @Binding var logItems: [LogItem]
-    @Binding var indexByID: [UUID: Int]
-    
+    let logItems: [LogItem]
     let title: String
     let isHistoricLogs: Bool
 
-    init(logItems: Binding<[LogItem]>,
-         indexByID: Binding<[UUID: Int]>,
+    init(logItems: [LogItem],
          isHistoricLogs: Bool = false,
          title: String = "NetworkSpectator") {
+        self.logItems = logItems
         self.isHistoricLogs = isHistoricLogs
-        self._logItems = logItems
-        self._indexByID = indexByID
         self.title = title
     }
 
@@ -148,7 +144,7 @@ struct RootContentView: View {
             // Requests list
             Section {
                 ForEach(items) { item in
-                    NavigationLink(value: RootContentRoute.logDetail(item)) {
+                    NavigationLink(value: RootContentRoute.logDetail(item, isHistoricLogs: isHistoricLogs)) {
                         LogListItemView(item: item)
                     }
                     .listRowBackground(rowBackgroundColor(item))
@@ -175,12 +171,8 @@ struct RootContentView: View {
     @ViewBuilder
     private func destinationView(for route: RootContentRoute) -> some View {
         switch route {
-        case .logDetail(let item):
-            if !isHistoricLogs, let index = indexByID[item.id] {
-                LogDetailsContainerView(item: $logItems[index], isHistoricLogs: isHistoricLogs)
-            } else {
-                LogDetailsContainerView(item: .constant(item), isHistoricLogs: isHistoricLogs)
-            }
+        case .logDetail(let item, let isHistoric):
+            LogDetailsContainerView(initialItem: item, isHistoricLogs: isHistoric)
         case .settings:
             SettingsView()
         case .insights(let data):
@@ -281,7 +273,7 @@ struct RootContentView: View {
 // MARK: - Navigation
 extension RootContentView {
     enum RootContentRoute: Hashable {
-        case logDetail(LogItem)
+        case logDetail(LogItem, isHistoricLogs: Bool)
         case settings
         case insights([LogItem])
     }

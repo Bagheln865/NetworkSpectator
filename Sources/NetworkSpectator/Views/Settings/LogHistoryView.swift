@@ -97,7 +97,7 @@ struct LogHistoryView: View {
             let items = storage.retrieve(forKey: route.key)
             
             RootContentView(
-                logItems: Binding.constant(items), indexByID: Binding.constant([:]),
+                logItems: items,
                 isHistoricLogs: true,
                 title: route.title
             )

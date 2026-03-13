@@ -8,8 +8,24 @@
 import SwiftUI
 
 struct LogDetailsContainerView: View {
-    @Binding var item: LogItem
+    let initialItem: LogItem
     let isHistoricLogs: Bool
+
+    @ObservedObject private var store = NetworkLogContainer.shared
+
+    /// For live sessions, return the latest version from the store.
+    /// For historic logs, return the snapshot passed in.
+    private var item: LogItem {
+        if !isHistoricLogs, let index = store.indexByID[initialItem.id] {
+            return store.items[index]
+        }
+        return initialItem
+    }
+    
+    init(initialItem: LogItem, isHistoricLogs: Bool) {
+        self.initialItem = initialItem
+        self.isHistoricLogs = isHistoricLogs
+    }
 
     // Stronger typing for picker selection
     enum DetailsTab: String, CaseIterable, Identifiable {
@@ -34,11 +50,6 @@ struct LogDetailsContainerView: View {
         case csv = "CSV"
         case postmanCollection = "Postman Collection"
         var id: String { rawValue }
-    }
-    
-    init(item: Binding<LogItem>, isHistoricLogs: Bool = false) {
-        self._item = item
-        self.isHistoricLogs = isHistoricLogs
     }
 
     // Filtered picker options depending on item content
@@ -185,13 +196,13 @@ struct LogDetailsContainerView: View {
     private func detailsView(for tab: DetailsTab) -> some View {
         switch tab {
         case .basic:
-            LogBasicDetailsView(item: $item)
+            LogBasicDetailsView(item: item)
         case .request:
-            LogRequestDetailsView(item: $item)
+            LogRequestDetailsView(item: item)
         case .headers:
-            LogHeadersDetailsView(item: $item)
+            LogHeadersDetailsView(item: item)
         case .response:
-            LogResponseDetailsView(item: $item)
+            LogResponseDetailsView(item: item)
         }
     }
 
