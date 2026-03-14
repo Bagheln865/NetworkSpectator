@@ -1,5 +1,5 @@
 //
-//  ChartsView.swift
+//  ChartItemFactory.swift
 //  NetworkSpectator
 //
 //  Created by Pankaj Bawane on 11/07/25.
@@ -9,11 +9,11 @@ import Foundation
 
 struct ChartItemFactory {
     
-    static func get<T: Hashable>(items: [LogItem], key: (LogItem) -> T) -> [ChartParameter<T>] {
+    static func get<T: Hashable & Sendable>(items: [LogItem], key: (LogItem) -> T) -> [ChartParameter<T>] {
         return createList(from: items, key: key)
     }
     
-    private static func createList<T: Hashable>(from items: [LogItem], key: (LogItem) -> T) -> [ChartParameter<T>] {
+    private static func createList<T: Hashable & Sendable>(from items: [LogItem], key: (LogItem) -> T) -> [ChartParameter<T>] {
         let grouped = Dictionary(grouping: items, by: key)
         
         let parameters = grouped.map { (code, group) in
@@ -24,7 +24,7 @@ struct ChartItemFactory {
     }
 }
 
-struct ChartParameter<T: Hashable>: Identifiable {
+struct ChartParameter<T: Hashable & Sendable>: Identifiable, Sendable {
     let value: T
     let count: Int
     var id: T { value }

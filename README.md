@@ -1,4 +1,4 @@
-# NetworkSpectator: Monitor/Intercept HTTP Traffic on iOS and MacOS
+# NetworkSpectator: Monitor/Intercept HTTP Traffic on iOS and macOS
 
 ![Swift 6.0+](https://img.shields.io/badge/Swift-6.0%2B-orange?logo=swift)
 ![Platforms](https://img.shields.io/badge/Platforms-iOS%2016.0%2B%20%7C%20macOS%2013.0%2B-blue)
@@ -10,49 +10,59 @@ A Swift framework for monitoring and inspecting your app's HTTP traffic during d
 
 ## Features
 
-- **Monitor network requests and responses in real time**
-  - URL, method, status code, response time, request/response headers, request body and response body
-  - Simple list and detail views for quick inspection
+- **Real-time network monitoring**
+  - Capture URL, method, status code, response time, headers, request body, and response body
+  - Live updates with in-progress indicators for pending requests
+  - Start immediately or use **on-demand mode** to enable monitoring from the UI when needed
+  - Color-coded list view with method badges, status indicators, and response metrics
  
-- **Filters and Search**
-  - Filter requests by status codes and HTTP methods
-  - Find specific requests by URL using search
+- **Filtering and search**
+  - Filter by status code ranges and HTTP methods
+  - Combine multiple filters with visual filter chips
+  - Full-text URL search across all captured requests
 
-- **Export logs in multiple formats**
-  NetworkSpectator supports multiple export formats:
-  - **CSV** - For importing into spreadsheet applications or data analysis tools
-  - **Plain text** - Simple format for quick sharing or viewing in text editors
-  - **Postman Collection format** - Import directly into Postman for API testing and collaboration
+- **Detailed request inspection**
+  - Tabbed detail view: Overview, Request, Headers, and Response
+  - Smart response rendering — pretty-printed JSON, inline image previews, and plain text
+  - Copy any request or response data to clipboard
+  - Create a mock or skip rule directly from a captured request
+
+- **Export in multiple formats**
+  - **CSV** — bulk or single request export for spreadsheets and analysis
+  - **Plain text** — human-readable format for quick sharing
+  - **Postman Collection** — import directly into Postman for API testing
 
 - **Mock responses**
-  - Define custom mock responses using rule-based matching
-  - Test different scenarios and edge cases without backend API deployment
-  - **Programmatic mocking** - Add mocks via code without complex stubbing setups
-  - **UI-based mocking** - Enable QA testers to validate business logic in test builds independently, without developer intervention or running app with Xcode
-  - Helps to speed up development using mock response
-  - Write unit tests without making actual network request
-  - Edit and update mock rules on the fly from UI
-  - Add delay in mock response
+  - Intercept requests and return custom responses without a backend
+  - Flexible matching: hostname, URL, path, endPath, subPath
+  - Configure status codes, headers, JSON/raw body, and response delay
+  - **Programmatic mocking** — register mocks via code for unit tests and development
+  - **UI-based mocking** — let QA testers create and manage mocks on the fly without Xcode
+  - **Persist mocks** across app sessions with local storage
 
-- **Skip a request from logging**
-  - Exclude specific or sensitive requests from logging using matching rules
-  - Reduce noise by filtering out irrelevant requests
-  - Configure skip rules both programmatically (in code) and dynamically (via UI)
-  - Edit and update skip rules from UI
+- **Skip request logging**
+  - Exclude noisy or sensitive requests using the same flexible matching rules
+  - Configure skip rules programmatically or from the UI
+  - Persist rules across app launches
+
+- **Insights dashboard**
+  - Summary cards: total requests, success rate, and unique hosts
+  - Interactive charts for status code distribution, HTTP methods, host traffic, and request timeline
+
+- **Log history**
+  - Automatically save session logs to disk for later review
+  - Browse past sessions from Tools
+  - Enable or disable history persistence from settings
 
 - **Lightweight and easy to integrate**
-  - One line setup to start monitoring and logging
-  - No XIB/Storyboards
-  - No external dependencies
-  - Works with SwiftUI and UIKit/AppKit
-  - Manage log prints on Xcode debug console
- 
-- **Insights Dashboard**
-  - Visualise network requests in the form of charts for HTTP methods, status codes, and host distribution 
+  - One-line setup to start monitoring
+  - No XIB/Storyboards, no external dependencies
+  - Works with SwiftUI, UIKit, and AppKit
+  - Toggle debug console logging on or off
+  - Supports both light and dark mode
 
-- **Cross-platform support**
-  - iOS 16.0+
-  - macOS 13.0+
+- **Cross-platform**
+  - iOS 16.0+ / macOS 13.0+
 
 
 ## Installation
@@ -142,8 +152,22 @@ NetworkSpectator.debugLogsPrint(isEnabled: Bool)
 // Register a mock response
 NetworkSpectator.registerMock(for mock: Mock)
 
+// Remove all registered mocks
+NetworkSpectator.stopMocking()
+
 // Skip logging for specific requests
 NetworkSpectator.ignoreLogging(for rule: MatchRule)
+
+// Remove all skip logging rules
+NetworkSpectator.stopIgnoringLog()
+```
+
+### On-Demand Monitoring
+
+Start NetworkSpectator in on-demand mode to let users enable monitoring from the UI:
+
+```swift
+NetworkSpectator.start(onDemand: true)
 ```
 
 ### Disabling NetworkSpectator

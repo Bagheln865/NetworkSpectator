@@ -1,3 +1,10 @@
+//
+//  HostsChartView.swift
+//  NetworkSpectator
+//
+//  Created by Pankaj Bawane on 07/12/25.
+//
+
 import SwiftUI
 import Charts
 
