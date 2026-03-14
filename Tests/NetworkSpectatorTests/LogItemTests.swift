@@ -213,6 +213,44 @@ struct LogItemTests {
         #expect(finishedItem.responseRaw == data)
     }
 
+    // MARK: - withMockID Tests
+    
+    @Test("withMockID sets mock ID and preserves all other fields")
+    func testWithMockIDSetsID() async throws {
+        let mockId = UUID()
+        let item = LogItem(
+            url: "https://example.com/api",
+            method: "POST",
+            headers: ["Content-Type": "application/json"],
+            requestBody: "{\"key\":\"val\"}"
+        )
+
+        let updated = item.withMockID(mockId)
+
+        #expect(updated.mockId == mockId)
+        #expect(updated.id == item.id)
+        #expect(updated.startTime == item.startTime)
+        #expect(updated.url == item.url)
+        #expect(updated.method == item.method)
+        #expect(updated.headers == item.headers)
+        #expect(updated.requestBody == item.requestBody)
+    }
+
+    @Test("withMockID with nil clears mock ID")
+    func testWithMockIDNilClearsMockID() async throws {
+        let item = LogItem(url: "https://example.com", mockId: UUID())
+        let updated = item.withMockID(nil)
+        #expect(updated.mockId == nil)
+        #expect(updated.isMocked == false)
+    }
+
+    @Test("withMockID default parameter is nil")
+    func testWithMockIDDefaultParamIsNil() async throws {
+        let item = LogItem(url: "https://example.com", mockId: UUID())
+        let updated = item.withMockID()
+        #expect(updated.mockId == nil)
+    }
+
     @Test("LogItem codable encoding and decoding")
     func testCodable() async throws {
         let responseData = #"{"key":"value"}"#.data(using: .utf8)
@@ -267,5 +305,77 @@ struct LogItemTests {
         let textData = "Hello, World!".data(using: .utf8)
         let item = LogItem(url: "https://example.com", responseRaw: textData)
         #expect(item.responseBody == "Hello, World!")
+    }
+
+    // MARK: - Status Category Edge Cases
+
+    @Test("LogItem status category Other for 600+")
+    func testStatusCategoryOther() async throws {
+        let item = LogItem(url: "https://example.com", statusCode: 600)
+        #expect(item.statusCategory == "Other")
+    }
+
+    @Test("LogItem status code range Other for 600+")
+    func testStatusCodeRangeOther() async throws {
+        let item = LogItem(url: "https://example.com", statusCode: 600)
+        #expect(item.statusCodeRange == "Other")
+    }
+
+    // MARK: - Pretty Printed Headers
+
+    @Test("requestHeadersPrettyPrinted formats headers correctly")
+    func testRequestHeadersPrettyPrinted() async throws {
+        let item = LogItem(
+            url: "https://example.com",
+            headers: ["Content-Type": "application/json"]
+        )
+        let pretty = item.requestHeadersPrettyPrinted
+        #expect(pretty.contains("Content-Type"))
+        #expect(pretty.contains("application/json"))
+    }
+
+    @Test("responseHeadersPrettyPrinted formats headers correctly")
+    func testResponseHeadersPrettyPrinted() async throws {
+        let item = LogItem(
+            url: "https://example.com",
+            responseHeaders: ["X-Request-Id": "abc123"]
+        )
+        let pretty = item.responseHeadersPrettyPrinted
+        #expect(pretty.contains("X-Request-Id"))
+        #expect(pretty.contains("abc123"))
+    }
+
+    @Test("requestHeadersPrettyPrinted returns empty for no headers")
+    func testRequestHeadersPrettyPrintedEmpty() async throws {
+        let item = LogItem(url: "https://example.com", headers: [:])
+        #expect(item.requestHeadersPrettyPrinted == "")
+    }
+
+    // MARK: - Host with invalid URL
+
+    @Test("LogItem host returns URL string when parsing fails")
+    func testHostWithInvalidURL() async throws {
+        let item = LogItem(url: "not a valid url with spaces")
+        // URLComponents will fail, so host should return the raw url
+        #expect(item.host == "not a valid url with spaces")
+    }
+
+    // MARK: - fromRequest preserves mock ID
+
+    @Test("fromRequest with mockId preserves it")
+    func testFromRequestWithMockId() async throws {
+        let mockId = UUID()
+        let request = URLRequest(url: URL(string: "https://example.com")!)
+        let item = LogItem.fromRequest(request, mockId)
+        #expect(item.mockId == mockId)
+        #expect(item.isMocked == true)
+    }
+
+    @Test("fromRequest without mockId has nil mockId")
+    func testFromRequestWithoutMockId() async throws {
+        let request = URLRequest(url: URL(string: "https://example.com")!)
+        let item = LogItem.fromRequest(request)
+        #expect(item.mockId == nil)
+        #expect(item.isMocked == false)
     }
 }

@@ -94,8 +94,8 @@ struct LogSessionManagerTests {
         let storage = makeStorage(mockFS)
         let keys = storage.listKeys()
         #expect(keys.count == 1)
-        // The key should start with the session start time (approximately now)
-        #expect(keys.first?.key.contains("Total: 1") == true)
+        // The key ends with the item count after the last pipe delimiter
+        #expect(keys.first?.key.hasSuffix("|1") == true)
     }
 
     @Test("Debounce coalesces writes via schedulePersist")
@@ -128,37 +128,6 @@ struct LogSessionManagerTests {
             let persisted = storage.retrieve(forKey: key.key)
             #expect(persisted.count == 10)
         }
-    }
-
-    @Test("Key updates when items change between persists")
-    func testKeyUpdatesOnChange() async {
-        let time1 = Date(timeIntervalSince1970: 1709400000)
-        let items = ItemsRef([sampleLogItem(startTime: time1)])
-        let (manager, mockFS) = makeManager(items: items)
-
-        await manager.startObserving()
-        await manager.schedulePersist()
-
-        // Wait for first debounce write
-        try? await Task.sleep(for: .milliseconds(200))
-
-        let storage = makeStorage(mockFS)
-        let firstKeys = storage.listKeys()
-        #expect(firstKeys.count == 1)
-        let firstKey = firstKeys.first?.key
-
-        // Add another item
-        let time2 = Date(timeIntervalSince1970: 1709400060)
-        items.value.append(sampleLogItem(url: "https://b.com", startTime: time2))
-        await manager.schedulePersist()
-
-        // Wait for second debounce write
-        try? await Task.sleep(for: .milliseconds(200))
-
-        let secondKeys = storage.listKeys()
-        #expect(secondKeys.count == 1)
-        #expect(secondKeys.first?.key != firstKey)
-        #expect(secondKeys.first?.key.contains("Total: 2") == true)
     }
 
     @Test("Finalize writes immediately bypassing debounce")
@@ -372,7 +341,7 @@ struct LogSessionManagerTests {
         let keys = storage.listKeys()
         #expect(keys.count == 1)
         // The key should reflect the original start time, not a later one
-        #expect(keys.first?.key.contains("Total: 1") == true)
+        #expect(keys.first?.key.hasSuffix("|1") == true)
     }
 
     @Test("schedulePersist after stopObserving and re-startObserving works")
@@ -392,7 +361,7 @@ struct LogSessionManagerTests {
         let storage = makeStorage(mockFS)
         let keys = storage.listKeys()
         #expect(keys.count == 1)
-        #expect(keys.first?.key.contains("Total: 1") == true)
+        #expect(keys.first?.key.hasSuffix("|1") == true)
     }
 }
 

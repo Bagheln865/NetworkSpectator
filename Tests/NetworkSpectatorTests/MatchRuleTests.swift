@@ -147,4 +147,112 @@ struct MatchRuleTests {
         #expect(MatchRule.regex(".*").ruleName == "Rule_Regex: .*")
         #expect(MatchRule.queryParameter(key: "id", value: "value").ruleName == "Rule_Query Parameter")
     }
+
+    // MARK: - urlRequest matching
+
+    @Test("urlRequest rule matches exact request")
+    func testURLRequestRuleMatches() async throws {
+        let request = URLRequest(url: URL(string: "https://example.com/api")!)
+        let rule = MatchRule.urlRequest(request)
+        #expect(rule.matches(request))
+    }
+
+    @Test("urlRequest rule does not match different request")
+    func testURLRequestRuleNoMatch() async throws {
+        let request1 = URLRequest(url: URL(string: "https://example.com/api")!)
+        let request2 = URLRequest(url: URL(string: "https://different.com/api")!)
+        let rule = MatchRule.urlRequest(request1)
+        #expect(!rule.matches(request2))
+    }
+
+    @Test("urlRequest ruleName returns correct value")
+    func testURLRequestRuleName() async throws {
+        let request = URLRequest(url: URL(string: "https://example.com")!)
+        #expect(MatchRule.urlRequest(request).ruleName == "Rule_URLRequest")
+    }
+
+    // MARK: - Codable round-trip
+
+    @Test("MatchRule hostName encodes and decodes correctly")
+    func testCodableHostName() async throws {
+        let rule = MatchRule.hostName("example.com")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule url encodes and decodes correctly")
+    func testCodableURL() async throws {
+        let rule = MatchRule.url("https://example.com/api")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule path encodes and decodes correctly")
+    func testCodablePath() async throws {
+        let rule = MatchRule.path("/api/users")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule endPath encodes and decodes correctly")
+    func testCodableEndPath() async throws {
+        let rule = MatchRule.endPath("users")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule subPath encodes and decodes correctly")
+    func testCodableSubPath() async throws {
+        let rule = MatchRule.subPath("api")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule regex encodes and decodes correctly")
+    func testCodableRegex() async throws {
+        let rule = MatchRule.regex("https://.*\\.com")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule queryParameter encodes and decodes correctly")
+    func testCodableQueryParameter() async throws {
+        let rule = MatchRule.queryParameter(key: "userId", value: "123")
+        let data = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(MatchRule.self, from: data)
+        #expect(decoded == rule)
+    }
+
+    @Test("MatchRule urlRequest encoding then decoding throws")
+    func testCodableURLRequestThrows() async throws {
+        let request = URLRequest(url: URL(string: "https://example.com")!)
+        let rule = MatchRule.urlRequest(request)
+        let data = try JSONEncoder().encode(rule)
+        #expect(throws: DecodingError.self) {
+            try JSONDecoder().decode(MatchRule.self, from: data)
+        }
+    }
+
+    @Test("MatchRule decoding unknown type throws")
+    func testCodableUnknownTypeThrows() async throws {
+        let json = #"{"type": "unknownType", "value": "test"}"#.data(using: .utf8)!
+        #expect(throws: DecodingError.self) {
+            try JSONDecoder().decode(MatchRule.self, from: json)
+        }
+    }
+
+    // MARK: - Query parameter edge cases
+
+    @Test("Query parameter key only match with no query items returns false")
+    func testQueryParameterNoQueryItems() async throws {
+        let rule = MatchRule.queryParameter(key: "userId", value: "123")
+        let request = URLRequest(url: URL(string: "https://example.com/api")!)
+        #expect(!rule.matches(request))
+    }
 }
