@@ -57,12 +57,12 @@ struct RequestBarChartView: View {
 
             // For multi-unit granularities, round down to the nearest multiple
             switch self {
-            case .fiveSeconds, .tenSeconds, .thirtySeconds:
+            case .fiveSeconds, .tenSeconds, .thirtySeconds, .fiveMinutes:
                 let seconds = Self.calendar.component(.second, from: floored)
                 let roundedSeconds = (seconds / Int(interval)) * Int(interval)
                 return Self.calendar.date(bySetting: .second, value: roundedSeconds, of: floored) ?? floored
 
-            case .fiveMinutes, .fifteenMinutes, .thirtyMinutes:
+            case .fifteenMinutes, .thirtyMinutes:
                 let minutes = Self.calendar.component(.minute, from: floored)
                 let roundedMinutes = (minutes / Int(interval / 60)) * Int(interval / 60)
                 return Self.calendar.date(bySetting: .minute, value: roundedMinutes, of: floored) ?? floored
@@ -91,7 +91,7 @@ struct RequestBarChartView: View {
                 }
             }
 
-            return .hour
+            return .minute
         }
     }
 
@@ -99,17 +99,10 @@ struct RequestBarChartView: View {
         guard !logs.isEmpty else { return nil }
 
         let times = logs.map(\.startTime)
-        guard let minTime = times.min() else { return nil }
-        guard let maxTime = times.max() else { return nil }
+        guard let minTime = times.min(), let maxTime = times.max() else { return nil }
 
-        // Add small padding to ensure all data points are visible
-        let padding = max((maxTime.timeIntervalSince(minTime)) * 0.02, 1.0)
-        let paddedMinTime = minTime.addingTimeInterval(-padding)
-        let paddedMaxTime = maxTime.addingTimeInterval(padding)
-
-        let domain = paddedMinTime...paddedMaxTime
-        let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
-        let granularity = TimeGranularity.choose(for: span, targetBuckets: 20)
+        let span = maxTime.timeIntervalSince(minTime)
+        let granularity = TimeGranularity.choose(for: max(span, 1), targetBuckets: 20)
 
         var counts: [Date: Int] = [:]
         for timestamp in times {
@@ -117,9 +110,11 @@ struct RequestBarChartView: View {
             counts[bucket, default: 0] += 1
         }
 
-        // Only include buckets with counts > 0 for better visibility
         let buckets = counts.map { TimeBucket(id: $0.key, count: $0.value) }
             .sorted(by: { $0.id < $1.id })
+
+        guard let first = buckets.first?.id, let last = buckets.last?.id else { return nil }
+        let domain = first...last
 
         return (buckets, domain, granularity)
     }
@@ -132,20 +127,59 @@ struct RequestBarChartView: View {
                 let maxCount = buckets.map(\.count).max() ?? 1
                 let yDomain = 0...max(maxCount, 1)
 
-                // Calculate appropriate axis mark count based on granularity
-                let axisMarkCount = min(Int(domain.upperBound.timeIntervalSince(domain.lowerBound) / granularity.interval), 10)
+                // Generate uniformly spaced tick dates across the domain
+                let tickDates: [Date] = {
+                    var dates: [Date] = []
+                    var current = domain.lowerBound
+                    while current <= domain.upperBound {
+                        dates.append(current)
+                        current = granularity.next(current)
+                    }
+                    return dates
+                }()
+                let labelledDates = Set(tickDates.enumerated().compactMap { index, date in
+                    index % 2 == 0 ? date : nil
+                })
 
                 Chart(buckets) { bucket in
-                    BarMark(
+                    LineMark(
                         x: .value("Time", bucket.id),
                         y: .value("Requests", bucket.count)
                     )
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(.blue)
+                    .lineStyle(StrokeStyle(lineWidth: 2))
+
+                    AreaMark(
+                        x: .value("Time", bucket.id),
+                        y: .value("Requests", bucket.count)
+                    )
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(
+                        .linearGradient(
+                            colors: [.blue.opacity(0.3), .blue.opacity(0.05)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+
+                    PointMark(
+                        x: .value("Time", bucket.id),
+                        y: .value("Requests", bucket.count)
+                    )
+                    .symbolSize(20)
                     .foregroundStyle(.blue)
                 }
                 .chartXScale(domain: domain)
                 .chartYScale(domain: yDomain)
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: max(axisMarkCount, 4)))
+                    AxisMarks(values: tickDates) { value in
+                        AxisGridLine()
+                        AxisTick()
+                        if let date = value.as(Date.self), labelledDates.contains(date) {
+                            AxisValueLabel(collisionResolution: .greedy)
+                        }
+                    }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading) { value in
@@ -170,3 +204,4 @@ struct RequestBarChartView: View {
         .padding()
     }
 }
+
