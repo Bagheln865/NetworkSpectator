@@ -57,11 +57,12 @@ final internal class NetworkURLProtocol: URLProtocol, @unchecked Sendable {
         captureHTTPBodyIfNeeded(on: thisRequest)
         
         // If the request is mocked.
-        let mock = MockServer.shared.responseIfMocked(thisRequest as URLRequest)
+        let urlRequest = thisRequest as URLRequest
+        let mock = MockServer.shared.responseIfMocked(urlRequest)
 
         // Log the request including headers and body (if any)
         let requestLog = protectedLog.withLock { log in
-            log = log.withMockID(mock?.id)
+            log = log.withRequestAndMockID(urlRequest, mock?.id)
             return log
         }
         logging(requestLog)

@@ -75,7 +75,7 @@ struct LogItemTests {
     @Test("LogItem status category unknown")
     func testStatusCategoryUnknown() async throws {
         let item = LogItem(url: "https://example.com", statusCode: 0)
-        #expect(item.statusCategory == "Unknown")
+        #expect(item.statusCategory == "NA")
     }
 
     @Test("LogItem status code range informational")
@@ -111,7 +111,7 @@ struct LogItemTests {
     @Test("LogItem status code range unknown")
     func testStatusCodeRangeUnknown() async throws {
         let item = LogItem(url: "https://example.com", statusCode: 0)
-        #expect(item.statusCodeRange == "Unknown")
+        #expect(item.statusCodeRange == "NA")
     }
 
     @Test("LogItem is error with 4xx status")
