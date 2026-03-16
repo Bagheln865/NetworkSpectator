@@ -179,30 +179,34 @@ NetworkSpectator.stop()
 ```
 
 ## NetworkSpectator on iOS
-The following screenshots demonstrate NetworkSpectator running on iOS in light mode.
+The following screenshots demonstrate NetworkSpectator running on iOS.
 
 | List of Requests | Filters | URL Search | Details |
 |---------|---------|------------|------------|
-| <img width="300" height="652" alt="landing" src="https://github.com/user-attachments/assets/e58d675a-1ab7-4a8f-8232-f45323b61b20" /> | <img width="300" height="652" alt="filters_ios" src="https://github.com/user-attachments/assets/32087e71-0c66-4204-aa4e-873a1a28cf67" /> | <img width="300" height="652" alt="url_search_ios" src="https://github.com/user-attachments/assets/5db9d07e-d311-49e6-b1c1-3bf8a2da0a2d" /> | <img width="300" height="652" alt="basic_ios" src="https://github.com/user-attachments/assets/d6d86fc3-eece-4bae-b557-519966040815" /> |
+| <img width="300" height="652" alt="landing" src="https://github.com/user-attachments/assets/892fd276-8753-447e-b0c7-8a76158d1862" /> | <img width="300" height="652" alt="filters_ios" src="https://github.com/user-attachments/assets/48151149-087f-4e1b-8512-4f0cd21cfde5" /> | <img width="300" height="652" alt="url_search_ios" src="https://github.com/user-attachments/assets/6b21220a-5827-49da-b640-6c689dd290fb" /> | <img width="300" height="652" alt="basic_ios" src="https://github.com/user-attachments/assets/8c10a744-f910-408f-8c6a-bb67e3c5bc80" /> |
 
-| Headers | Response | Settings | Export & Share |
+| Headers | Response | Tools | History |
 |---------|----------|----------|-------|
-| <img width="300" height="652" alt="headers_ios" src="https://github.com/user-attachments/assets/1fc211e9-382e-4491-af7d-0f590dad5a9d" /> | <img width="300" height="652" alt="response_response" src="https://github.com/user-attachments/assets/9623b659-a0b5-4414-bf59-cd91c600047d" /> | <img width="300" height="652" alt="settings_ios" src="https://github.com/user-attachments/assets/c3f4e364-aa95-4d65-955d-4a35c8a94d68" /> | <img width="300" height="652" alt="share_ios" src="https://github.com/user-attachments/assets/96b0fc82-dcfe-4159-8458-00b815466802" /> |
+| <img width="300" height="652" alt="headers_ios" src="https://github.com/user-attachments/assets/60053303-ccef-4e2d-9aaa-0dffe2937e92" /> | <img width="300" height="652" alt="response_response" src="https://github.com/user-attachments/assets/08fd4cd8-abf5-4e34-b0cb-5646961de148" /> | <img width="300" height="652" alt="settings_ios" src="https://github.com/user-attachments/assets/0a7c54bc-a1ff-49c9-8dde-856e25d2178f" /> | <img width="300" height="652" alt="share_ios" src="https://github.com/user-attachments/assets/8de5d34a-caa8-426e-b09f-ca1ef0558651" /> |
+
+| Insights | Insights - Timeline | Insights - Status code | Insights - Performance |
+|---------|---------|----------|-----------|
+| <img width="300" height="652" alt="insights_ios" src="https://github.com/user-attachments/assets/44ed2592-d237-4d9e-a963-6acc7219252d" /> | <img width="300" height="652" alt="timeline_ios" src="https://github.com/user-attachments/assets/0b099e24-e392-4d53-a346-7261ef89c555" /> | <img width="300" height="652" alt="status_code_ios" src="https://github.com/user-attachments/assets/6261c815-e579-4c45-8ff0-309ac70836de" /> | <img width="300" height="652" alt="perf_ios" src="https://github.com/user-attachments/assets/8879251a-fb74-4944-984d-e18742bb6860" /> |
 
 ## NetworkSpectator on macOS
-The following screenshots demonstrate NetworkSpectator running on macOS in dark mode.
+The following screenshots demonstrate NetworkSpectator running on macOS.
 
 | List of Requests | Filters | Details |
 |------------------|---------|---------------|
-| <img width="1169" height="620" alt="landing_mac" src="https://github.com/user-attachments/assets/2006355b-7a6a-47f4-89e2-14f7cf76e8df" /> | <img width="1152" height="609" alt="filters_mac" src="https://github.com/user-attachments/assets/2007cc11-672e-420d-9f13-7110e8b95a2d" /> | <img width="1152" height="833" alt="basic_details_mac" src="https://github.com/user-attachments/assets/65f946ff-90da-4815-b27f-8d02c8bd06f2" /> |
+| <img width="1169" height="620" alt="landing_mac" src="https://github.com/user-attachments/assets/0f9c04e5-ccd2-42aa-8aff-a5c7f0111fd9" /> | <img width="1152" height="609" alt="filters_mac" src="https://github.com/user-attachments/assets/93bc10f9-68a2-4d9d-bc6b-5cabf89c7306" /> | <img width="1152" height="833" alt="basic_details_mac" src="https://github.com/user-attachments/assets/d3f4f9a4-8f3f-4606-b5d0-c1bf32dfd2f5" /> |
 
-| Headers | Response | Analytics |
+| Headers | Response | Tools |
 |---------|----------|-----------|
-| <img width="1152" height="833" alt="headers_mac" src="https://github.com/user-attachments/assets/72a63e17-de57-4218-ab90-5fd2935e0468" /> | <img width="1152" height="833" alt="response_mac" src="https://github.com/user-attachments/assets/0507e4a5-4c24-4a70-838c-4a2802620218" /> | <img width="1152" height="949" alt="analytics_mac" src="https://github.com/user-attachments/assets/152e8e49-7dbb-41f4-9bf8-2e5d3ce6c1af" /> |
+| <img width="1152" height="833" alt="headers_mac" src="https://github.com/user-attachments/assets/7aabd28b-0374-4fcd-817b-63c82d6478a1" /> | <img width="1152" height="833" alt="response_mac" src="https://github.com/user-attachments/assets/64be7c60-c61c-4735-887d-80cb16d4f116" /> | <img width="1152" height="949" alt="analytics_mac" src="https://github.com/user-attachments/assets/598b8967-2633-4441-a768-83e4adcec602" /> |
 
-| Settings | Add Mock | Skip Logging |
+| Insights | Timeline | Performance |
 |----------|----------|--------------|
-| <img width="1169" height="620" alt="settings_mac" src="https://github.com/user-attachments/assets/e6a7ebee-cd44-415a-910d-ef0273d57495" /> | <img width="1169" height="632" alt="add_mock_mac" src="https://github.com/user-attachments/assets/8353ae97-69b1-46ec-bc32-273463f2c95c" /> | <img width="1169" height="632" alt="skip_logging_mac" src="https://github.com/user-attachments/assets/04400e4b-0e59-4dd1-827f-257c9eda131f" /> |
+| <img width="1169" height="620" alt="settings_mac" src="https://github.com/user-attachments/assets/7fdea5e8-99a8-41b7-837d-f50ca061ca42" /> | <img width="1169" height="632" alt="add_mock_mac" src="https://github.com/user-attachments/assets/70337b2b-407b-4f37-9a32-9262cda18d9d" /> | <img width="1169" height="632" alt="skip_logging_mac" src="https://github.com/user-attachments/assets/70c64f35-2445-453a-a31f-fd2af2925640" /> |
 
 ## Safety and Release Builds
 
