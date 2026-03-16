@@ -146,13 +146,13 @@ extension LogItem {
         return LogItem(url: urlString, method: method, headers: headers, requestBodyRaw: body, mockId: mockId)
     }
     
-    func withRequestAndMockID(_ request: URLRequest, _ mockId: UUID? = nil) -> LogItem {
+    func withMockID(_ mockId: UUID? = nil) -> LogItem {
         return LogItem(id: id,
                        startTime: startTime,
                        url: url,
                        method: method,
                        headers: headers,
-                       requestBodyRaw: request.httpBody,
+                       requestBodyRaw: requestBodyRaw,
                        mockId: mockId)
     }
 
