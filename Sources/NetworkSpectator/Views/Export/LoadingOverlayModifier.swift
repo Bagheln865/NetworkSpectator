@@ -1,3 +1,10 @@
+//
+//  LoadingOverlayModifier.swift
+//  NetworkSpectator
+//
+//  Created by Pankaj Bawane on 14/12/25.
+//
+
 import SwiftUI
 
 struct LoadingOverlayModifier: ViewModifier {

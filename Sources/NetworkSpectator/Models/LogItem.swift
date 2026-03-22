@@ -146,6 +146,7 @@ extension LogItem {
         return LogItem(url: urlString, method: method, headers: headers, requestBodyRaw: body, mockId: mockId)
     }
     
+    /// Update log item if the mock ID if the request was mocked.
     func withMockID(_ mockId: UUID? = nil) -> LogItem {
         return LogItem(id: id,
                        startTime: startTime,

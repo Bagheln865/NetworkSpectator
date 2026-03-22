@@ -1,3 +1,10 @@
+//
+//  HTTPMethodColor.swift
+//  NetworkSpectator
+//
+//  Created by Pankaj Bawane on 14/03/26.
+//
+
 import SwiftUI
 
 /// Provides consistent HTTP method colors across the app.

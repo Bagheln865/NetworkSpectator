@@ -1,3 +1,10 @@
+//
+//  StatusCodeColor.swift
+//  NetworkSpectator
+//
+//  Created by Pankaj Bawane on 14/03/26.
+//
+
 import SwiftUI
 
 /// Provides consistent status code colors across the app.

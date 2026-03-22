@@ -9,14 +9,14 @@ import SwiftUI
 
 struct LogHistoryView: View {
     
-    let storage: LogHistoryStorage
-    let preference: PreferenceStorage
-    @State var logs: [HistoryItem] = []
-    @State var presentSheet: Bool = false
-    @State var historyToggle: Bool
-    @State var loading: Bool = true
-    @State var totalSize: String = ""
-    @State var showDeleteAllAlert = false
+    private let storage: LogHistoryStorage
+    private let preference: PreferenceStorage
+    @State private var logs: [HistoryItem] = []
+    @State private var presentSheet: Bool = false
+    @State private var historyToggle: Bool
+    @State private var loading: Bool = true
+    @State private var totalSize: String = ""
+    @State private var showDeleteAllAlert = false
     
     init() {
         storage = LogHistoryStorage()

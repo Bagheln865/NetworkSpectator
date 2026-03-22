@@ -1,5 +1,5 @@
 //
-//  NetworkSpectatorManager.swift
+//  NetworkSpectator.swift
 //  NetworkSpectator
 //
 //  Created by Pankaj Bawane on 20/11/25.
