@@ -48,10 +48,23 @@ git push origin feature/your-feature-name
 ### 6. Submit a Pull Request
 - Navigate to the original NetworkSpectator repository on GitHub and click Compare & pull request.
 - Describe your changes clearly in the PR description and link to any related issues.
+- For implementing a feature, prefix the title with ```Feature - ``` e.g. Feature - Export Logs in CSV.
+- For bug fixes, prefix the title with ```Bugfix```
 - Be responsive to feedback from maintainers during the review process. 
 
 ## 📏 Coding Standards
-- Style: Follow the project's existing indentation and naming conventions.
-- Add appropriate comments explaining what the code does.
-- Unit Tests: Include unit tests for any features or bug fixes.
-- Documentation: Update relevant README or documentation files if required.
+- **Style:** Follow the project's existing indentation and naming conventions.
+- **Source file header:** Please use the following standard format for the top comment block in a newly added source file:
+```
+//
+//  [File_Name].swift
+//  NetworkSpectator
+//
+//  Created on [DD/MM/YY].
+//
+//  Copyright © NetworkSpectator. This project is licensed under the MIT License.
+//
+```
+- **Commenting:** Add appropriate comments explaining what the code does.
+- **Unit Tests:** Include unit tests for any features or bug fixes.
+- **Documentation:** Update relevant README or documentation files if required.
