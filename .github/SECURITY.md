@@ -41,7 +41,7 @@ Captured network logs may be persisted to disk as **unencrypted JSON files** in 
 
 If you discover a security vulnerability in NetworkSpectator, please do not open a public issue.
 
-Instead, report it via GitHub's reporting tool - **Settings > Security > Private vulnerability reporting** with the following details:
+Instead, report it via GitHub's reporting tool - **Security > Report a vulnerability** with the following details:
 
 - A description of the vulnerability
 - Steps to reproduce the issue
