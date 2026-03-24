@@ -93,7 +93,7 @@ struct LogHistoryView: View {
                 .fontWeight(.semibold)
             }
         }
-        .navigationTitle("Log History")
+        .navigationTitle("Manage History")
         .navigationDestination(for: LogHistoryRoute.self) { route in
             let items = storage.retrieve(forKey: route.key)
             
@@ -193,15 +193,17 @@ struct LogHistoryView: View {
                 }
             } else {
                 Label(log.formattedTitle, systemImage: "clock")
+                    .labelStyle(CompactLabelStyle(spacing: 7, foregroundColor: .primary))
                     .font(.callout)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
             }
             
-            HStack(spacing: 8) {
+            HStack(spacing: 15) {
                 Label(log.count, systemImage: "square.stack.3d.up.fill")
+                    .labelStyle(CompactLabelStyle(spacing: 5))
                 
-                Label("Size: " + formatBytes(log.size), systemImage: "arrow.down.circle")
+                Label(formatBytes(log.size), systemImage: "arrow.down.circle")
+                    .labelStyle(CompactLabelStyle(spacing: 5))
                 
                 Spacer()
             }
