@@ -50,7 +50,7 @@ struct LogResponseDetailsView: View {
 
     @ViewBuilder
     private func responseBodyView() -> some View {
-        ResponseBodyLineView(responseBody: item.responseBody)
+        ResponseBodyLineView(responseBody: item.responseBody, mimetype: item.mimetype ?? "")
             .frame(minHeight: 200)
             .padding(12)
             .background(Color.secondary.opacity(0.2))
