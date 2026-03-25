@@ -203,12 +203,18 @@ struct StatusCodeBadge: View {
 
 struct CompactLabelStyle: LabelStyle {
     var spacing: CGFloat = 2
+    var foregroundColor: Color = .secondary
+    
+    init(spacing: CGFloat = 2 , foregroundColor: Color = .secondary) {
+        self.spacing = spacing
+        self.foregroundColor = foregroundColor
+    }
 
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: spacing) {
             configuration.icon
             configuration.title
         }
-        .foregroundStyle(.secondary)
+        .foregroundStyle(foregroundColor)
     }
 }
