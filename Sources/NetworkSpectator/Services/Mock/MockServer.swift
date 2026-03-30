@@ -12,7 +12,7 @@ import os
 final class MockServer: @unchecked Sendable {
 
     private let state: OSAllocatedUnfairLock<Set<Mock>>
-    private nonisolated(unsafe) let storage: RuleStorage<Mock>
+    private let storage: RuleStorage<Mock>
 
     static let shared: MockServer = .init()
 
