@@ -42,7 +42,7 @@ public extension NetworkSpectator.Test {
     /// Call once before your tests make network requests.
     static func setUp() {
         NetworkURLProtocol.logger = LogItemStoreTests()
-        NetworkURLProtocol.mockServer = .makeEmpty()
+        NetworkURLProtocol.mockServer = .defaultServer()
         NetworkInterceptor.shared.enable()
     }
     

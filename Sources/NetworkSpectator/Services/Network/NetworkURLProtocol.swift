@@ -14,12 +14,21 @@ final class NetworkURLProtocol: URLProtocol, @unchecked Sendable {
     private var mockTask: Task<Void, Never>?
     private let protectedLog: OSAllocatedUnfairLock<LogItem>
     private static let taskCacheKey = "NETWORKSPECTATOR_TRACK_CACHED_TASK_KEY"
+    
     private static let _logger = OSAllocatedUnfairLock<any LogItemStorable>(
         initialState: LogItemStoreUI()
     )
     static var logger: any LogItemStorable {
         get { _logger.withLock { $0 } }
         set { _logger.withLock { $0 = newValue } }
+    }
+    
+    private static let _mockServer = OSAllocatedUnfairLock<MockServer>(
+        initialState: .shared
+    )
+    static var mockServer: MockServer {
+        get { _mockServer.withLock { $0 } }
+        set { _mockServer.withLock { $0 = newValue } }
     }
     
     override init(request: URLRequest, cachedResponse: CachedURLResponse?, client: (any URLProtocolClient)?) {
@@ -63,7 +72,7 @@ final class NetworkURLProtocol: URLProtocol, @unchecked Sendable {
         URLProtocol.setProperty(true, forKey: Self.taskCacheKey, in: thisRequest)
         
         // If the request is mocked.
-        let mock = MockServer.shared.responseIfMocked(request)
+        let mock = Self.mockServer.responseIfMocked(request)
 
         // Log the request including headers and body (if any)
         let requestLog = protectedLog.withLock { log in
