@@ -79,7 +79,7 @@ public struct NetworkSpectator: Sendable {
         Task {
             await NetworkLogContainer.shared.disable()
             MockServer.shared.clear()
-            SkipRequestForLoggingHandler.shared.clear()
+            LogSkipManager.shared.clear()
         }
     }
     
@@ -107,14 +107,14 @@ public struct NetworkSpectator: Sendable {
     ///
     /// - Parameter rule: A ``MatchRule`` that identifies which requests should be excluded from logging.
     public static func ignoreLogging(for rule: MatchRule) {
-        SkipRequestForLoggingHandler.shared.register(rule: rule)
+        LogSkipManager.shared.register(rule: rule)
     }
     
     /// Removes all logging exclusion rules.
     ///
     /// After calling this method, all intercepted network requests will be logged again.
     public static func stopIgnoringLog() {
-        SkipRequestForLoggingHandler.shared.clear()
+        LogSkipManager.shared.clear()
     }
     
     /// Enables or disables debug logging to the Xcode console.

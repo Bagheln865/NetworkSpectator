@@ -46,8 +46,8 @@ final class NetworkURLProtocol: URLProtocol, @unchecked Sendable {
         }
 
         // If the request is ignored for logging using match rules, don't intercept
-        if SkipRequestForLoggingHandler.shared.isEnabled,
-           SkipRequestForLoggingHandler.shared.shouldSkipLogging(request) {
+        if LogSkipManager.shared.isEnabled,
+           LogSkipManager.shared.shouldSkipLogging(request) {
             return false
         }
 

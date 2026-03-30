@@ -60,10 +60,10 @@ struct RuleStorageTests {
     @Test("Save and retrieve skip requests")
     func testSaveAndRetrieveSkipRequests() async throws {
         let store = MockStorage()
-        let storage = RuleStorage<SkipRequestForLogging>(key: .skipRules, store: store)
+        let storage = RuleStorage<LogSkipRequest>(key: .skipRules, store: store)
 
-        let skip1 = SkipRequestForLogging(rule: .url("https://analytics.com"), saveLocally: true)
-        let skip2 = SkipRequestForLogging(rule: .hostName("tracking.com"), saveLocally: true)
+        let skip1 = LogSkipRequest(rule: .url("https://analytics.com"), saveLocally: true)
+        let skip2 = LogSkipRequest(rule: .hostName("tracking.com"), saveLocally: true)
 
         storage.save([skip1, skip2])
         UserDefaults.standard.synchronize()
@@ -141,10 +141,10 @@ struct RuleStorageTests {
     @Test("Storage preserves skip request properties")
     func testStoragePreservesSkipRequestProperties() async throws {
         let store = MockStorage()
-        let storage = RuleStorage<SkipRequestForLogging>(key: .skipRules, store: store)
+        let storage = RuleStorage<LogSkipRequest>(key: .skipRules, store: store)
 
         let rule = MatchRule.hostName("analytics.com")
-        let skipRequest = SkipRequestForLogging(rule: rule, saveLocally: true)
+        let skipRequest = LogSkipRequest(rule: rule, saveLocally: true)
 
         storage.save([skipRequest])
 

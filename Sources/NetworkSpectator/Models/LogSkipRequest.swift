@@ -1,5 +1,5 @@
 //
-//  SkipRequestForLogging.swift
+//  LogSkipRequest.swift
 //  NetworkSpectator
 //
 //  Created by Pankaj Bawane on 15/12/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SkipRequestForLogging: Identifiable, Hashable, Codable {
+public struct LogSkipRequest: Identifiable, Hashable, Codable {
 
     public let id: UUID
     let rule: MatchRule
@@ -29,7 +29,7 @@ public struct SkipRequestForLogging: Identifiable, Hashable, Codable {
         hasher.combine(id)
     }
     
-    public static func == (lhs: SkipRequestForLogging, rhs: SkipRequestForLogging) -> Bool {
+    public static func == (lhs: LogSkipRequest, rhs: LogSkipRequest) -> Bool {
         lhs.id == rhs.id
     }
 }

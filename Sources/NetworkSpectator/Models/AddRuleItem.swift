@@ -67,7 +67,7 @@ struct AddRuleItem: Identifiable {
             self.showDelete = true
         }
 
-        init?(skipRequest: SkipRequestForLogging) {
+        init?(skipRequest: LogSkipRequest) {
             self.id = skipRequest.id
 
             switch skipRequest.rule {

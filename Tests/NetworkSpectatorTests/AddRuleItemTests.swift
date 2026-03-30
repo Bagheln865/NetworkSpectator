@@ -168,7 +168,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest with .url rule succeeds")
     func testInitFromSkipRequestURLRule() {
-        let skip = SkipRequestForLogging(rule: .url("https://example.com"))
+        let skip = LogSkipRequest(rule: .url("https://example.com"))
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item != nil)
@@ -180,7 +180,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest with .path rule succeeds")
     func testInitFromSkipRequestPathRule() {
-        let skip = SkipRequestForLogging(rule: .path("/api"))
+        let skip = LogSkipRequest(rule: .path("/api"))
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item != nil)
@@ -190,7 +190,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest with .endPath rule succeeds")
     func testInitFromSkipRequestEndPathRule() {
-        let skip = SkipRequestForLogging(rule: .endPath("users"))
+        let skip = LogSkipRequest(rule: .endPath("users"))
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item != nil)
@@ -200,7 +200,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest with .subPath rule maps to pathComponent")
     func testInitFromSkipRequestSubPathRule() {
-        let skip = SkipRequestForLogging(rule: .subPath("api"))
+        let skip = LogSkipRequest(rule: .subPath("api"))
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item != nil)
@@ -210,7 +210,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest has empty response fields")
     func testInitFromSkipRequestEmptyResponseFields() {
-        let skip = SkipRequestForLogging(rule: .url("https://example.com"))
+        let skip = LogSkipRequest(rule: .url("https://example.com"))
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item?.response == "")
@@ -220,7 +220,7 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest preserves saveLocally")
     func testInitFromSkipRequestSaveLocally() {
-        let skip = SkipRequestForLogging(rule: .url("https://example.com"), saveLocally: true)
+        let skip = LogSkipRequest(rule: .url("https://example.com"), saveLocally: true)
         let item = AddRuleItem(skipRequest: skip)
 
         #expect(item?.saveLocally == true)
@@ -230,21 +230,21 @@ struct AddRuleItemTests {
 
     @Test("Init from SkipRequest with .hostName returns nil")
     func testInitFromSkipRequestHostNameReturnsNil() {
-        let skip = SkipRequestForLogging(rule: .hostName("example.com"))
+        let skip = LogSkipRequest(rule: .hostName("example.com"))
         let item = AddRuleItem(skipRequest: skip)
         #expect(item == nil)
     }
 
     @Test("Init from SkipRequest with .regex returns nil")
     func testInitFromSkipRequestRegexReturnsNil() {
-        let skip = SkipRequestForLogging(rule: .regex(".*"))
+        let skip = LogSkipRequest(rule: .regex(".*"))
         let item = AddRuleItem(skipRequest: skip)
         #expect(item == nil)
     }
 
     @Test("Init from SkipRequest with .queryParameter returns nil")
     func testInitFromSkipRequestQueryParameterReturnsNil() {
-        let skip = SkipRequestForLogging(rule: .queryParameter(key: "id", value: "1"))
+        let skip = LogSkipRequest(rule: .queryParameter(key: "id", value: "1"))
         let item = AddRuleItem(skipRequest: skip)
         #expect(item == nil)
     }

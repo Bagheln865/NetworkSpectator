@@ -222,7 +222,7 @@ struct AddRuleItemView: View {
                                 if editingItem.isMock {
                                     MockServer.shared.remove(id: editingItem.id)
                                 } else {
-                                    SkipRequestForLoggingHandler.shared.remove(id: editingItem.id)
+                                    LogSkipManager.shared.remove(id: editingItem.id)
                                 }
                                 dismiss()
                             }
@@ -294,7 +294,7 @@ struct AddRuleItemView: View {
             if isMock {
                 MockServer.shared.remove(id: existingItem.id)
             } else {
-                SkipRequestForLoggingHandler.shared.remove(id: existingItem.id)
+                LogSkipManager.shared.remove(id: existingItem.id)
             }
         }
 
@@ -323,8 +323,8 @@ struct AddRuleItemView: View {
                 return
             }
         } else {
-            let skipRequest = SkipRequestForLogging(rule: matchRule, saveLocally: saveLocally)
-            SkipRequestForLoggingHandler.shared.register(request: skipRequest)
+            let skipRequest = LogSkipRequest(rule: matchRule, saveLocally: saveLocally)
+            LogSkipManager.shared.register(request: skipRequest)
 
             // Call onSave callback if provided
             if let onSave = onSave {
