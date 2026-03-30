@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MimeType: Equatable, Codable {
+public enum MimeType: Equatable, Codable, Hashable, Sendable {
     case json
     case xml
     case html
@@ -31,26 +31,20 @@ enum MimeType: Equatable, Codable {
     }
 }
 
-public final class HTTPResponse: Sendable {
+public struct HTTPResponse: Sendable {
     let headers: [String: String]
     let statusCode: Int
     let responseData: Data?
     let error: Error?
     let responseTime: Double
     let mimeType: MimeType
-    nonisolated(unsafe) var didReceiveResponse: (() -> Void)?
-    nonisolated(unsafe) var urlRequest: URLRequest? {
-        didSet {
-            didReceiveResponse?()
-        }
-    }
     
-    init(headers: [String : String],
-         statusCode: Int, responseData: Data?,
-         error: Error?,
-         responseTime: Double = 0,
-         mimeType: MimeType = .empty,
-         textEncoding: String? = nil) {
+    public init(headers: [String : String],
+                statusCode: Int, responseData: Data?,
+                error: Error?,
+                responseTime: Double = 0,
+                mimeType: MimeType = .empty,
+                textEncoding: String? = nil) {
         self.headers = headers
         self.statusCode = statusCode
         self.responseData = responseData
@@ -86,6 +80,7 @@ public final class HTTPResponse: Sendable {
 
 extension HTTPResponse: Equatable {
     public static func == (lhs: HTTPResponse, rhs: HTTPResponse) -> Bool {
+        lhs.mimeType == rhs.mimeType &&
         lhs.headers == rhs.headers &&
         lhs.statusCode == rhs.statusCode &&
         lhs.responseData == rhs.responseData &&
@@ -95,6 +90,7 @@ extension HTTPResponse: Equatable {
 
 extension HTTPResponse: Hashable {
     public func hash(into hasher: inout Hasher) {
+        hasher.combine(mimeType)
         hasher.combine(headers)
         hasher.combine(statusCode)
         hasher.combine(responseData)
@@ -106,8 +102,6 @@ extension HTTPResponse: Codable {
     enum CodingKeys: String, CodingKey {
         case headers, statusCode, responseData, responseTime, mimeType, textEncoding
     }
-
-    
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
@@ -122,26 +116,9 @@ extension HTTPResponse: Codable {
 /// Represents a mock HTTP response for network request interception.
 public struct Mock: Identifiable, Sendable {
     public let id: UUID
-    let rule: MatchRule
-    let response: HTTPResponse
+    public let rule: MatchRule
+    public let response: HTTPResponse
     let saveLocally: Bool
-
-    private init(response: Data?,
-                 headers: [String: String],
-                 statusCode: Int,
-                 error: Error?,
-                 rule: MatchRule,
-                 saveLocally: Bool,
-                 delay: Double = 0) {
-        self.id = UUID()
-        self.response = .init(headers: headers,
-                              statusCode: statusCode,
-                              responseData: response,
-                              error: error,
-                              responseTime: delay)
-        self.rule = rule
-        self.saveLocally = saveLocally
-    }
 
     /// Creates a mock with rule-based matching and JSON response.
     /// - Parameters:
@@ -152,25 +129,76 @@ public struct Mock: Identifiable, Sendable {
     ///   - error: Optional error to return instead of a successful response.
     ///   - saveLocally: Store mock on device.
     ///   - delay: delay in response.
-    public init(rule: MatchRule,
-                response: HTTPResponse,
-                saveLocally: Bool = false) {
+    internal init(rule: MatchRule,
+                  response: Data?,
+                  headers: [String: String],
+                  statusCode: Int,
+                  error: Error?,
+                  saveLocally: Bool,
+                  delay: Double = 0) {
+        let httpResponse = HTTPResponse(headers: headers,
+                                    statusCode: statusCode,
+                                    responseData: response,
+                                    error: error,
+                                    responseTime: delay)
+        self.init(rule: rule, response: httpResponse, saveLocally: saveLocally)
+    }
+    
+    internal init(rule: MatchRule,
+                  response: HTTPResponse,
+                  saveLocally: Bool) {
         self.id = UUID()
         self.rule = rule
         self.response = response
         self.saveLocally = saveLocally
     }
+    
+    public init(rule: MatchRule,
+                response: HTTPResponse) {
+        self.init(rule: rule, response: response, saveLocally: false)
+    }
+    
+    public init(rule: MatchRule,
+                response: Data?,
+                headers: [String: String] = [:],
+                statusCode: Int = 200,
+                error: Error? = nil,
+                delay: Double = 0) {
+        let httpResponse = HTTPResponse(headers: headers,
+                                        statusCode: statusCode,
+                                        responseData: response,
+                                        error: error,
+                                        responseTime: delay)
+        self.init(rule: rule, response: httpResponse, saveLocally: false)
+    }
+    
+    public init(rule: MatchRule,
+                response: [AnyHashable: Any],
+                headers: [String: String] = [:],
+                statusCode: Int = 200,
+                error: Error? = nil,
+                delay: Double = 0) throws {
+        let respnseData = try JSONSerialization.data(withJSONObject: response)
+        let response = HTTPResponse(headers: headers,
+                                    statusCode: statusCode,
+                                    responseData: respnseData,
+                                    error: error,
+                                    responseTime: delay)
+        self.init(rule: rule, response: response, saveLocally: false)
+    }
 }
 
 extension Mock: Equatable {
     public static func == (lhs: Mock, rhs: Mock) -> Bool {
-        lhs.id == rhs.id
+        lhs.rule == rhs.rule &&
+        lhs.response == rhs.response
     }
 }
 
 extension Mock: Hashable {
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(rule)
+        hasher.combine(response)
     }
 }
 

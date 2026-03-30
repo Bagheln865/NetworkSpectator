@@ -29,22 +29,29 @@ import Foundation
 /// // In your test tearDown
 /// NetworkSpectator.Test.tearDown()
 /// ```
-public final class Test: Sendable {
+
+public extension NetworkSpectator {
+    final class Test: Sendable { }
+}
+
+public extension NetworkSpectator.Test {
     
     // MARK: - Lifecycle
     
     /// Enables network interception with the test logger.
     /// Call once before your tests make network requests.
-    public static func setUp() {
+    static func setUp() {
         NetworkURLProtocol.logger = LogItemStoreTests()
+        NetworkURLProtocol.mockServer = .makeEmpty()
         NetworkInterceptor.shared.enable()
     }
     
     /// Disables interception and removes all mocks.
     /// Call after your tests complete.
-    public static func tearDown() {
+    static func tearDown() {
         NetworkInterceptor.shared.disable()
-        MockServer.shared.clear()
+        NetworkURLProtocol.mockServer.clear()
+        NetworkURLProtocol.mockServer = .shared
     }
     
     // MARK: - Mock Registration
@@ -57,7 +64,7 @@ public final class Test: Sendable {
     ///   - statusCode: HTTP status code (default `200`).
     ///   - headers: Additional response headers (default empty).
     ///   - delay: Simulated network delay in seconds (default `0`).
-    public static func mock(
+    static func mock(
         rule: MatchRule,
         json: [String: Any],
         statusCode: Int = 200,
@@ -73,7 +80,7 @@ public final class Test: Sendable {
             responseTime: delay,
             mimeType: .json
         )
-        MockServer.shared.register(Mock(rule: rule, response: response))
+        NetworkURLProtocol.mockServer.register(Mock(rule: rule, response: response))
     }
     
     /// Mocks a raw `Data` response for requests matching the given rule.
@@ -84,7 +91,7 @@ public final class Test: Sendable {
     ///   - statusCode: HTTP status code (default `200`).
     ///   - headers: Additional response headers (default empty).
     ///   - delay: Simulated network delay in seconds (default `0`).
-    public static func mock(
+    static func mock(
         rule: MatchRule,
         data: Data?,
         statusCode: Int = 200,
@@ -98,7 +105,7 @@ public final class Test: Sendable {
             error: nil,
             responseTime: delay
         )
-        MockServer.shared.register(Mock(rule: rule, response: response))
+        NetworkURLProtocol.mockServer.register(Mock(rule: rule, response: response))
     }
     
     /// Mocks a network failure for requests matching the given rule.
@@ -106,7 +113,7 @@ public final class Test: Sendable {
     /// - Parameters:
     ///   - rule: The ``MatchRule`` that determines which requests are intercepted.
     ///   - error: The error to surface (default `URLError(.notConnectedToInternet)`).
-    public static func mockError(
+    static func mockError(
         rule: MatchRule,
         error: Error = URLError(.notConnectedToInternet)
     ) {
@@ -116,13 +123,13 @@ public final class Test: Sendable {
             responseData: nil,
             error: error
         )
-        MockServer.shared.register(Mock(rule: rule, response: response))
+        NetworkURLProtocol.mockServer.register(Mock(rule: rule, response: response))
     }
     
     // MARK: - Mock Removal
     
     /// Removes all registered mocks.
-    public static func removeAllMocks() {
-        MockServer.shared.clear()
+    static func removeAllMocks() {
+        NetworkURLProtocol.mockServer.clear()
     }
 }
