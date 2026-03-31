@@ -7,6 +7,9 @@
 
 import Foundation
 
+/// A no-op implementation of `Storeable` used for test mocking purposes.
+/// Since tests do not require actual persistence, all operations are intentionally empty,
+/// ensuring no data is written to or read from storage during test execution.
 struct EmptyStorage: Storeable {
     func set(_ value: Any?, forKey defaultName: String) {
         // Intentionally do nothing.

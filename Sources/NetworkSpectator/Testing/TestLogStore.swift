@@ -14,11 +14,16 @@ import Foundation
 /// The JSONL file can be read by an external CI tool for processing,
 /// grouping, and artifact generation.
 ///
-/// Output path defaults to `/tmp/NetworkSpectator/unit_test_logs.jsonl` and
-/// can be overridden via the `NETWORK_SPECTATOR_TESTS_OUTPUT_DIR` environment variable.
+/// Output path defaults to `/tmp/NetworkSpectator/unit_test_logs.jsonl`
+/// (outside the XCTest sandbox, stable across CI steps).
+/// Can be overridden via the `NETWORK_SPECTATOR_TESTS_OUTPUT_DIR` environment variable.
 actor TestLogStore {
     
     static let shared = TestLogStore()
+    
+    /// Default output directory — `/tmp/NetworkSpectator/`.
+    /// Lives outside the XCTest sandbox so the file persists between CI steps.
+    private static let defaultDirectory = URL(fileURLWithPath: "/tmp/NetworkSpectator", isDirectory: true)
     
     /// Tracks in-flight requests by ID so we can pair request → response.
     private var pending: [UUID: LogItem] = [:]
@@ -45,8 +50,7 @@ actor TestLogStore {
         if let envPath = ProcessInfo.processInfo.environment["NETWORK_SPECTATOR_TESTS_OUTPUT_DIR"] {
             return URL(fileURLWithPath: envPath, isDirectory: true)
         }
-        return FileManager.default.temporaryDirectory
-            .appendingPathComponent("NetworkSpectator", isDirectory: true)
+        return defaultDirectory
     }
     
     static var jsonlFileURL: URL {
@@ -64,9 +68,14 @@ actor TestLogStore {
             try? FileManager.default.removeItem(at: fileURL)
         }
         FileManager.default.createFile(atPath: fileURL.path(), contents: nil)
-        let handle = try? FileHandle(forWritingTo: fileURL)
-        handle?.seekToEndOfFile()
-        return handle
+        do {
+            let handle = try FileHandle(forWritingTo: fileURL)
+            handle.seekToEndOfFile()
+            return handle
+        } catch {
+            DebugPrint.log(error.localizedDescription)
+            return nil
+        }
     }
     
     // MARK: - Recording
@@ -76,11 +85,9 @@ actor TestLogStore {
     func add(_ item: LogItem) {
         if item.isLoading {
             pending[item.id] = item
-            DebugPrint.log("NETWORK SPECTATOR TEST: Initiated \(item.method) \(item.url)")
         } else {
             pending.removeValue(forKey: item.id)
             appendToDisk(item)
-            DebugPrint.log("NETWORK SPECTATOR TEST: Completed \(item.method) \(item.url) → \(item.statusCode)")
         }
     }
     
