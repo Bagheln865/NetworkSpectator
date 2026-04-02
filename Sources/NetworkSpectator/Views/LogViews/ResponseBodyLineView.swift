@@ -13,7 +13,8 @@ struct ResponseBodyLineView: View {
 
     @State private var isProcessing = true
     @State private var texts: [Text] = []
-
+    
+    private static let jsonLineRegex = /"[^"]*"|-?\d+\.?\d*([eE][+-]?\d+)?|[:\[\]{},]|true|false|null|\s+|[^\s":\[\]{},]+/
     
     init (responseBody: String, mimetype: String) {
         self.responseBody = responseBody
@@ -35,7 +36,6 @@ struct ResponseBodyLineView: View {
             } else {
                 List(Array(texts.enumerated()), id: \.offset) { index, line in
                     line
-                        .font(.system(.caption, design: .monospaced))
                         .textSelection(.enabled)
                         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
                         .listRowSeparator(.hidden)
@@ -69,53 +69,73 @@ struct ResponseBodyLineView: View {
     }
     
     func styledSegments(from input: String) -> Text {
-        // Matches: quoted strings, numbers, symbols, or whitespace
-        let regex = /"[^"]*"|-?\d+\.?\d*([eE][+-]?\d+)?|[:\[\]{},]|true|false|null|\s+|[^\s":\[\]{},]+/
-        let matches = input.matches(of: regex)
-        
+        let matches = input.matches(of: Self.jsonLineRegex)
+
         var result = Text("")
         var expectValue = false
-        
+
         for match in matches {
             let segment = String(match.output.0)
-            
-            if segment.hasPrefix("\"") {
-                if expectValue {
-                    // String value
-                    result = result + Text(segment).foregroundColor(.blue)
-                    expectValue = false
+
+            let kind: JSONAttributeKind = {
+                if segment.hasPrefix("\"") {
+                    return expectValue ? .stringValue : .key
+                } else if segment == ":" {
+                    return .colon
+                } else if "[]{}".contains(segment) {
+                    return .bracketOrBrace
+                } else if segment == "," {
+                    return .comma
+                } else if segment.first?.isNumber == true || (segment.first == "-" && segment.count > 1) {
+                    return .number
+                } else if segment == "true" || segment == "false" {
+                    return .boolean
+                } else if segment == "null" {
+                    return .null
                 } else {
-                    // Key — medium
-                    result = result + Text(segment).foregroundColor(.orange).fontWeight(.medium)
+                    return .whitespaceOrOther
                 }
-            } else if segment == ":" {
-                // Colon — primary color, bold
-                result = result + Text(segment).foregroundColor(.primary).bold()
+            }()
+
+            result = result + Text(segment).foregroundColor(kind.color).font(kind.font)
+
+            switch kind {
+            case .colon:
                 expectValue = true
-            } else if "[]{}".contains(segment) {
-                // Brackets/braces — primary color, bold
-                result = result + Text(segment).foregroundColor(.primary).bold()
-            } else if segment == "," {
-                // Comma — primary color, bold
-                result = result + Text(segment).foregroundColor(.primary).bold()
+            case .comma, .stringValue, .number, .boolean, .null:
                 expectValue = false
-            } else if segment.first?.isNumber == true || (segment.first == "-" && segment.count > 1) {
-                // Number — distinct color
-                result = result + Text(segment).foregroundColor(.indigo)
-                expectValue = false
-            } else if ["true", "false"].contains(segment) {
-                // Boolean — distinct color
-                result = result + Text(segment).foregroundColor(.teal.opacity(0.9))
-                expectValue = false
-            } else if segment == "null" {
-                // Null — distinct color
-                result = result + Text(segment).foregroundColor(.red)
-                expectValue = false
-            } else {
-                // Whitespace and anything else — keep as-is
-                result = result + Text(segment)
+            default:
+                break
             }
         }
+
         return result
     }
 }
+
+extension ResponseBodyLineView {
+    private enum JSONAttributeKind {
+        case key, stringValue, number, boolean, null, colon, bracketOrBrace, comma, whitespaceOrOther
+        
+        var color: Color {
+            switch self {
+            case .key: return Color(red: 0.7490196078431373, green: 0.5215686274509804, blue: 0.3333333333333333)
+            case .stringValue: return Color(red: 0.9882352941176471, green: 0.41568627450980394, blue: 0.36470588235294116)
+            case .number: return Color.yellow
+            case .boolean, .null: return Color(red: 0.9882352941176471, green: 0.37254901960784315, blue: 0.6392156862745098)
+            case .colon, .bracketOrBrace, .comma: return .primary
+            case .whitespaceOrOther: return .secondary
+            }
+        }
+        
+        var font: Font {
+            switch self {
+            case .colon, .bracketOrBrace, .comma:
+                return .callout.monospaced()
+            default:
+                return .callout.monospaced().bold()
+            }
+        }
+    }
+}
+
