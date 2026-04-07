@@ -21,7 +21,7 @@ final class MockServer: Sendable {
         state.withLock { $0 }
     }
 
-    private init(state: OSAllocatedUnfairLock<Set<Mock>> = OSAllocatedUnfairLock(initialState: []),
+    init(state: OSAllocatedUnfairLock<Set<Mock>> = OSAllocatedUnfairLock(initialState: []),
          storage: RuleStorage<Mock> = RuleStorage<Mock>(key: .mockRules),
          transient: Bool = false) {
         self.storage = storage
