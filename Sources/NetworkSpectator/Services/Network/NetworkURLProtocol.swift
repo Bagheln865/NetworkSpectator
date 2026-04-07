@@ -15,10 +15,10 @@ final class NetworkURLProtocol: URLProtocol, @unchecked Sendable {
     private let protectedLog: OSAllocatedUnfairLock<LogItem>
     private static let taskCacheKey = "NETWORKSPECTATOR_TRACK_CACHED_TASK_KEY"
     
-    private static let _logger = OSAllocatedUnfairLock<any LogItemLogger>(
-        initialState: UILogItemLogger()
+    private static let _logger = OSAllocatedUnfairLock<any NetworkItemLogger>(
+        initialState: UIItemLogger()
     )
-    static var logger: any LogItemLogger {
+    static var logger: any NetworkItemLogger {
         get { _logger.withLock { $0 } }
         set { _logger.withLock { $0 = newValue } }
     }

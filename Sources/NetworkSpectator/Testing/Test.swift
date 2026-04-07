@@ -1,5 +1,5 @@
 //
-//  Test.swift
+//  TestServer.swift
 //  NetworkSpectator
 //
 //  Created by Pankaj Bawane on 29/03/26.
@@ -14,11 +14,11 @@ import Foundation
 /// the convenience `mock(…)` methods.
 ///
 /// ```swift
-/// // In your test setUp
-/// NetworkSpectator.Test.setUp()
+/// // One time setup in Tests.
+/// NetworkSpectator.test.setUp()
 ///
-/// // Register a mock
-/// NetworkSpectator.Test.mock(
+/// // Register a mock response.
+/// NetworkSpectator.test.setResponse(
 ///     rule: .path("/api/users"),
 ///     json: ["name": "pankaj"],
 ///     statusCode: 200
@@ -26,32 +26,34 @@ import Foundation
 ///
 /// // … run your networking code …
 ///
-/// // In your test tearDown
-/// NetworkSpectator.Test.tearDown()
 /// ```
 
-public extension NetworkSpectator {
-    struct Test { }
-}
-
-public extension NetworkSpectator.Test {
+public class TestServer: @unchecked Sendable {
     
     // MARK: - Lifecycle
     
-    nonisolated(unsafe) private(set) static var isLoggingEnabled: Bool = false
+    internal init() {}
+    
+    private(set) var isLoggingEnabled: Bool = false
+    private var setupComplete: Bool = false
     
     /// Enables network interception with the test logger.
     /// Call once before your tests make network requests.
-    static func setUp(logging: Bool = false) {
+    func setUp(logging: Bool = false) {
+        guard !setupComplete else { return }
+        defer { setupComplete = true }
         isLoggingEnabled = logging
-        NetworkURLProtocol.logger = TestLogItemLogger()
-        NetworkURLProtocol.mockServer = .testServer()
+        NetworkURLProtocol.logger = TestItemLogger()
+        NetworkURLProtocol.mockServer = .testServer
+        NetworkURLProtocol.mockServer.clear()
         NetworkInterceptor.shared.enable()
     }
     
     /// Disables interception and removes all mocks.
     /// Call after your tests complete.
-    static func tearDown() {
+     func tearDown() {
+        guard setupComplete else { return }
+        defer { setupComplete = false }
         isLoggingEnabled = false
         NetworkInterceptor.shared.disable()
         NetworkURLProtocol.mockServer.clear()
@@ -68,7 +70,7 @@ public extension NetworkSpectator.Test {
     ///   - statusCode: HTTP status code (default `200`).
     ///   - headers: Additional response headers (default empty).
     ///   - delay: Simulated network delay in seconds (default `0`).
-    static func mock(
+    func setResponse(
         method: HTTPMethod,
         rule: MatchRule,
         json: [String: Any],
@@ -96,7 +98,7 @@ public extension NetworkSpectator.Test {
     ///   - statusCode: HTTP status code (default `200`).
     ///   - headers: Additional response headers (default empty).
     ///   - delay: Simulated network delay in seconds (default `0`).
-    static func mock(
+    func setResponse(
         method: HTTPMethod,
         rule: MatchRule,
         data: Data?,
@@ -119,7 +121,7 @@ public extension NetworkSpectator.Test {
     /// - Parameters:
     ///   - rule: The ``MatchRule`` that determines which requests are intercepted.
     ///   - error: The error to surface (default `URLError(.notConnectedToInternet)`).
-    static func mockError(
+    func setErrorResponse(
         method: HTTPMethod,
         rule: MatchRule,
         error: Error = URLError(.notConnectedToInternet)
@@ -136,7 +138,7 @@ public extension NetworkSpectator.Test {
     // MARK: - Mock Removal
     
     /// Removes all registered mocks.
-    static func removeAllMocks() {
+    func removeAllMocks() {
         NetworkURLProtocol.mockServer.clear()
     }
 }

@@ -21,7 +21,7 @@ final class MockServer: Sendable {
         state.withLock { $0 }
     }
 
-    init(state: OSAllocatedUnfairLock<Set<Mock>> = OSAllocatedUnfairLock(initialState: []),
+    private init(state: OSAllocatedUnfairLock<Set<Mock>> = OSAllocatedUnfairLock(initialState: []),
          storage: RuleStorage<Mock> = RuleStorage<Mock>(key: .mockRules),
          transient: Bool = false) {
         self.storage = storage
@@ -31,13 +31,13 @@ final class MockServer: Sendable {
 
     /// Creates an empty mock server with no persisted mocks.
     /// Used by the test harness to isolate test mocks from UI mocks.
-    static func testServer() -> MockServer {
+    static let testServer: MockServer = {
         MockServer(state: OSAllocatedUnfairLock(initialState: []),
                    storage: RuleStorage<Mock>(key: .mockRules,
                                               store: EmptyStorage()),
                    transient: true
                    )
-    }
+    }()
 
     /// Registers a mock to intercept matching network requests.
     /// - Parameter mock: The mock configuration to register.

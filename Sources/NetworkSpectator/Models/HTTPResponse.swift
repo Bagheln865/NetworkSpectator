@@ -46,7 +46,8 @@ extension HTTPResponse: Equatable {
         lhs.headers == rhs.headers &&
         lhs.statusCode == rhs.statusCode &&
         lhs.responseData == rhs.responseData &&
-        lhs.responseTime == rhs.responseTime
+        lhs.responseTime == rhs.responseTime &&
+        (lhs.error?.localizedDescription ?? "") == (rhs.error?.localizedDescription ?? "")
     }
 }
 
@@ -57,6 +58,7 @@ extension HTTPResponse: Hashable {
         hasher.combine(statusCode)
         hasher.combine(responseData)
         hasher.combine(responseTime)
+        hasher.combine(error?.localizedDescription ?? "")
     }
 }
 

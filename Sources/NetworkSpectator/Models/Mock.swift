@@ -139,6 +139,7 @@ public struct Mock: Identifiable, Sendable {
 // the same matching rule and response are considered equal regardless of UUID.
 extension Mock: Equatable {
     public static func == (lhs: Mock, rhs: Mock) -> Bool {
+        lhs.method == rhs.method &&
         lhs.rule == rhs.rule &&
         lhs.response == rhs.response
     }
@@ -146,6 +147,7 @@ extension Mock: Equatable {
 
 extension Mock: Hashable {
     public func hash(into hasher: inout Hasher) {
+        hasher.combine(method)
         hasher.combine(rule)
         hasher.combine(response)
     }

@@ -127,4 +127,7 @@ public struct NetworkSpectator: Sendable {
     public static func debugLogsPrint(isEnabled: Bool) {
         DebugPrint.shared.update(isEnabled)
     }
+    
+    /// Access 'test' to write mocks in test targets.
+    static let test: TestServer = .init()
 }
