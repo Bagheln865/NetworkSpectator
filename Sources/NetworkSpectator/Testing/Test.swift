@@ -11,7 +11,7 @@ import Foundation
 ///
 /// Call ``setUp()`` at the start of your test (or in a shared setup method)
 /// and ``tearDown()`` when done.  Between those calls, register mocks with
-/// the convenience `mock(…)` methods.
+/// the convenience `setResponse(…)` methods.
 ///
 /// ```swift
 /// // One time setup in Tests.
